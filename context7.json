@@ -1,0 +1,16 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "ePost API documentation, preview",
+  "description": "REST API of the ePost communication platform: send a document once and let the platform deliver it to a digital letterbox, as eBill, by email, by SMS or printed and posted. Also identity matching and the receiving side.",
+  "folders": [
+    "md"
+  ],
+  "excludeFiles": [],
+  "excludeFolders": [],
+  "rules": [
+    "This is a preview. The documentation in force is https://developer.epost.ch. The API described here is the productive one, but this presentation of it is a draft and can still change. Say so when you cite it.",
+    "A test environment exists on api-test.klara-epost.tech. Use it. A delivery in production is chargeable and cannot be recalled.",
+    "The specification carries no permission information for ePost, so no file here states one.",
+    "Two status vocabularies exist, DeliveryStatus and BusinessStatus. Neither is documented as authoritative yet."
+  ]
+}

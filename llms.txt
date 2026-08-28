@@ -1,0 +1,50 @@
+# ePost API documentation, preview
+
+> REST API of the ePost communication platform: send a document once and let the platform deliver it to a digital letterbox, as eBill, by email, by SMS or printed and posted. Also identity matching and the receiving side.
+
+**This is a preview.** The documentation in force is https://developer.epost.ch. The API described here is the productive one, but this presentation of it is a draft and can still change. Say so when you cite it.
+
+## Machine-readable formats
+
+- [OpenAPI specification](https://developer.klara.ch/epost-preview/epost-openapi.json): the contract, 34 operations, OpenAPI 3.0.3
+- [Build information](https://developer.klara.ch/epost-preview/build-info.json): when this was built and from which source
+
+## Guides
+
+- [Getting started](https://developer.klara.ch/epost-preview/md/getting-started.md)
+- [Getting access](https://developer.klara.ch/epost-preview/md/access.md)
+- [API basics](https://developer.klara.ch/epost-preview/md/api-basics.md)
+- [Authentication](https://developer.klara.ch/epost-preview/md/authentication.md)
+- [Sending documents](https://developer.klara.ch/epost-preview/md/delivery.md)
+- [Channels in detail](https://developer.klara.ch/epost-preview/md/channels.md)
+- [Previewing channel and price](https://developer.klara.ch/epost-preview/md/preview.md)
+- [Identity matching](https://developer.klara.ch/epost-preview/md/matching.md)
+- [Digital letterbox](https://developer.klara.ch/epost-preview/md/letterbox.md)
+- [Getting recipients onto ePost](https://developer.klara.ch/epost-preview/md/onboarding.md)
+- [Limits and rate limiting](https://developer.klara.ch/epost-preview/md/limits.md)
+- [OpenAPI specification and tooling](https://developer.klara.ch/epost-preview/md/openapi-spec.md)
+- [Changelog](https://developer.klara.ch/epost-preview/md/changelog.md)
+- [Known limitations](https://developer.klara.ch/epost-preview/md/roadmap.md)
+- [FAQ](https://developer.klara.ch/epost-preview/md/faq.md)
+- [Support](https://developer.klara.ch/epost-preview/md/support.md)
+
+## Endpoint reference
+
+Each file lists the operations of one area with parameters, request and response bodies.
+
+- [Authentication](https://developer.klara.ch/epost-preview/md/reference-authentication.md): 3 operations
+- [Standard ePost Digital Letterbox Identity Matching](https://developer.klara.ch/epost-preview/md/reference-standard-epost-digital-letterbox-identity-matching.md): 4 operations
+- [ePost Communication Platform Delivery](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-delivery.md): 3 operations
+- [ePost Communication Platform Monitoring](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-monitoring.md): 1 operation
+- [ePost Communication Platform Preview Services](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-preview-services.md): 4 operations
+- [ePost Digital LetterBox Identity Matching with detailed recipient feedback](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox-identity-matching-with-detailed-recipient-feedback.md): 5 operations
+- [ePost Digital Letterbox](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox.md): 13 operations
+- [ePost Digital Letterbox Onboarding and Profile Management](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox-onboarding-and-profile-management.md): 1 operation
+
+## Notes for agents
+
+- The HTML page and these files are generated from one source in the same build. Where they disagree, the OpenAPI specification is the contract.
+- Every guide file names its canonical page, so a citation can point a human at the same content.
+- A test environment exists on api-test.klara-epost.tech. Use it. A delivery in production is chargeable and cannot be recalled.
+- The specification carries no permission information for ePost, so no file here states one.
+- Two status vocabularies exist, DeliveryStatus and BusinessStatus. Neither is documented as authoritative yet.

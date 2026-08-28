@@ -1,0 +1,5277 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ePost Public API",
+    "description": "REST API for integrating with the ePost communication platform. See developer.epost.ch for guides, authentication and getting started. **Important note:** Effective November 15th, 2024, HTTP/1.0 is no longer supported. Use HTTP/1.1 or HTTP/2.",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api-test.klara-epost.tech",
+      "description": "Test. Self-service onboarding, no charges, nothing is physically posted"
+    },
+    {
+      "url": "https://api.epost.ch",
+      "description": "Production. Deliveries are chargeable"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "KLARA Authentication flow"
+    },
+    {
+      "name": "ePost Communication Platform Delivery",
+      "description": "Including identity matching on delivery"
+    },
+    {
+      "name": "ePost Communication Platform Preview Services",
+      "description": "Offers preview of the delivery channels and prices without sending any document."
+    },
+    {
+      "name": "ePost Communication Platform Monitoring",
+      "description": "Monitoring data for deliveries done by oneAPI, independent of the delivery channel."
+    },
+    {
+      "name": "Standard ePost Digital Letterbox Identity Matching",
+      "description": "Including identity matching with simple responses"
+    },
+    {
+      "name": "ePost Digital Letterbox Onboarding and Profile Management",
+      "description": "ePost onboarding and profile management"
+    },
+    {
+      "name": "ePost Digital LetterBox Identity Matching with detailed recipient feedback",
+      "description": "Identity matching with detailed response"
+    },
+    {
+      "name": "ePost Digital Letterbox",
+      "description": "Access and manage your digital letter box via public API"
+    }
+  ],
+  "paths": {
+    "/core/latest/tenants": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Returns all tenants of a user",
+        "description": "A KLARA user might have multiple tenants. Use this endpoint to get the list of tenants containing tenant id, company id.<br /> The tenant and company id returned by this endpoint can be used to generate tokens to access other endpoints. Use your KLARA username and password <strong> OR </strong> access-token to get the list of tenants. <br />",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "access_token": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "access_token": {
+                  "style": "form"
+                },
+                "password": {
+                  "style": "form"
+                },
+                "username": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Found tenants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tenant"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The user has been disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong when getting list of tenants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/core/latest/token": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Generate tokens to access other KLARA core endpoints",
+        "description": "After obtaining tenant id and company id for the desired tenant, use this endpoint to get the access token for a specific tenant, and refresh token. <br />A grant_type of <strong>password</strong> is used for a Password grant, which requires username, password, tenant and company id to produce access token, refresh token from scratch.<br />A grant_type of <strong>refresh_token</strong> is used for a Refresh token grant, which is used for acquiring the access token using refresh token.<br />A grant_type of <strong>token_exchange</strong> performs an OAuth 2.0 Token Exchange (RFC 8693). Provide <strong>subject_token</strong> (the raw upstream Bearer token, without the 'Bearer ' prefix) and <strong>audience</strong> to identify the target token type.<br />Supported audience values:<ul><li><strong>cossa</strong> &mdash; exchanges a COSSA bearer token for a ePost access token.</li></ul><strong>Note:</strong> subject_token must be the raw token value without the 'Bearer ' prefix.",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "password": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "grant_type": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "tenant_id": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "company_id": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "refresh_token": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "subject_token": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "audience": {
+                    "default": "",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAPIToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Could not get token"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/core/latest/token/by-microsoft": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Exchange Microsoft access token for system token",
+        "description": "Provide a Microsoft access token and tenant id to exchange for a system token.",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "microsoft_access_token": {
+                    "type": "string"
+                  },
+                  "tenant_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Could not get token"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/epost/deliveries/monitoring": {
+      "get": {
+        "tags": [
+          "ePost Communication Platform Monitoring"
+        ],
+        "summary": "Get monitoring data for the deliveries.",
+        "parameters": [
+          {
+            "name": "delivery-id",
+            "in": "query",
+            "description": "Filter <b>recipient tracking</b> base on the delivery id.<br/>If this parameter is empty, the API will return the records for all deliveries.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Define the limit of the <b>recipient tracking</b> list that this API returns.<br/>For example, if a sender have 10 <b>recipient tracking</b> in the database, and this limit parameter is 5, and the offset parameter is 0,<br/>then this API will return the list containing the first 5 records<br/>If not set, then default value of 48 is used",
+            "schema": {
+              "format": "int32",
+              "default": 48,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Define which position to start getting <b>recipient tracking</b> list.<br/>For example, if a user have 10 <b>recipient tracking</b> in the database, and this offset parameter is 5,<br/>then this API will return <b>recipient tracking</b> list from the 5th record.<br/>If not set, then default value of 0 is used",
+            "schema": {
+              "format": "int32",
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting the list for getting newest (DESC) or oldest (ASC) results.",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SortStrategy"
+                },
+                {
+                  "default": "DESCENDING"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recipient tracking was returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecipientTrackingDataResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/onboarding": {
+      "post": {
+        "tags": [
+          "ePost Digital Letterbox Onboarding and Profile Management"
+        ],
+        "summary": "Improves users's onboarding experience and add credentials",
+        "description": "Generate a link or QR code on which interacted/scanned, the actions defined in the request body will be executed.<br/>The response output is decided by the <b>Accept</b> header of the request<br/>If a value of \"text/html\" is entered in the <b>Accept</b> header, a response with \"text/html\" media type is returned containing the URL.<br/>If a value of \"image/png\" is entered in the <b>Accept</b> header, a response with \"image/png\" media type is returned containing the QR code.<br/><b>Verification score</b> of the credentials <b>Accept</b> value 0 or 50.<br/>Only one credential has <b>verification score</b> in the request body.",
+        "parameters": [
+          {
+            "name": "encrypt-token",
+            "in": "query",
+            "description": "Indicate that if the encryption is required for the token part of the response URL.<br/>Should be true when the token payload contains recipient's credentials.",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Onboarding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "QR code or Link generated successfully.",
+            "content": {
+              "image/png, application/json": {},
+              "text/html;charset=UTF-8, application/json": {
+                "example": "https://api.klara.tech/eletter-qr?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhZGQtY3JlZGVudGlhbHMiOnsiMmZjYjRmNmEtZjI4ZC00ZTlmLTk2MGQtYTZlNGM3NWViYmFmLm15LXByb3BlcnR5I\njoiMzcuMTI4NDM0NS0xMjIyMjEifSwibWF0Y2gtY3JlZGVudGlhbHMiOnsiZW1haWwiOiJqb2huLmRvZUBrbGFyYS50ZWNoIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwic3RyZWV0IjoiTWFpbiBTdHJlZXQiLC\nJob3VzZU51bWJlciI6IjciLCJ6aXAiOiI4MDAwIiwiY2l0eSI6Ilp1cmljaCJ9LCJpc3MiOiJodHRwczovL2tsYXJhLmNoIiwiZXhwIjo0MTAyMzU4NDAwLCJpYXQiOjE2MzcxMjM5NDksImp0aSI6ImJhOTc0N2Q0LWIwZGUtNGRjZC0\n4N2E4LTRlZjIyNDJiOGMxNCJ9.Cpx4uWWj9GDd0ZjKcqpJuMVRDaLP8vHdNigRQXFZPdH68RnX9WNCedTcPTK0kU6MAKTutLFhWk-TSxKrJlVe7oRk4jnlzXgy-05UNKMYAeNPHzDakAS305SsIlatcSeT1nRtUECoZWQ5BIiYEAA6qdQ\n392bSRlbnsgXxDMvTfzI1toYymfS12T3YjoZgfAr4TZM6bYNn8WCgBeL0TQW_olaedo2qoYwzhuv1Q6Qm3U7Cq-hO5hZFtHHU1LXTLOVauU9OMAcPwb7nMoqYI3djLp9YVMIVQvbz2Zu5Ct0_DW-ve4RrgpjWjqwbi6XWr3eKz-cTS29r\nQ2Kvocdde93DVQ"
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/preview/delivery-channels": {
+      "post": {
+        "tags": [
+          "ePost Communication Platform Preview Services"
+        ],
+        "summary": "Creates a preview of all the available delivery channels without delivering any document.",
+        "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p>",
+        "parameters": [
+          {
+            "name": "preview-option",
+            "in": "query",
+            "description": "Specify should include 1st or all channels in the result.<br/>Acceptable values:<br/><b>ALL_AVAILABLE_CHANNELS</b> include all channels in result<br/><b>FIRST_AVAILABLE_CHANNEL</b> include only first channel in result<br/><br /><br/><b>ALL_AVAILABLE_CHANNELS</b> is chosen <b>by default</b>",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PreviewOption"
+                },
+                {
+                  "default": "ALL_AVAILABLE_CHANNELS"
+                }
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Preview delivery's metadata",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/OneApiPreviewRequest"
+              },
+              "encoding": {
+                "files": {
+                  "contentType": "application/octet-stream"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Delivery preview created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/preview/delivery-channels/{preview-id}/status": {
+      "get": {
+        "tags": [
+          "ePost Communication Platform Preview Services"
+        ],
+        "summary": "Get delivery channel preview status.",
+        "parameters": [
+          {
+            "name": "preview-id",
+            "in": "path",
+            "description": "The id of the preview",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewDeliveryChannelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Preview id is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/preview/delivery-prices": {
+      "post": {
+        "tags": [
+          "ePost Communication Platform Preview Services"
+        ],
+        "summary": "Creates a preview of all the available delivery channels without delivering any document.",
+        "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p>",
+        "parameters": [
+          {
+            "name": "preview-option",
+            "in": "query",
+            "description": "Specify should include 1st or all channels in the result.<br/>Acceptable values:<br/><b>ALL_AVAILABLE_CHANNELS</b> include all channels in result<br/><b>FIRST_AVAILABLE_CHANNEL</b> include only first channel in result<br/><br /><br/><b>ALL_AVAILABLE_CHANNELS</b> is chosen <b>by default</b>",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PreviewOption"
+                },
+                {
+                  "default": "ALL_AVAILABLE_CHANNELS"
+                }
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewDeliveryRequestV2"
+              },
+              "encoding": {
+                "files": {
+                  "contentType": "application/octet-stream"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delivery pricing preview created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/preview/delivery-prices/{preview-id}/status": {
+      "get": {
+        "tags": [
+          "ePost Communication Platform Preview Services"
+        ],
+        "summary": "Get delivery pricing preview status.",
+        "parameters": [
+          {
+            "name": "preview-id",
+            "in": "path",
+            "description": "The id of the preview",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewDeliveryPricingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Preview id is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Preview id is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/deliveries": {
+      "post": {
+        "tags": [
+          "ePost Communication Platform Delivery"
+        ],
+        "summary": "Creates a delivery and send documents for a sender.",
+        "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p><p style=\"color:red; font-weight:bold\">Total number of documents per delivery limit: 2,000</p><p style=\"color:red; font-weight:bold\">Total number of recipients per delivery limit: 2,000</p>",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryRequestV21"
+              },
+              "encoding": {
+                "files": {
+                  "contentType": "application/octet-stream"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delivery created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/deliveries/{delivery-id}/status": {
+      "get": {
+        "tags": [
+          "ePost Communication Platform Delivery"
+        ],
+        "summary": "Get Delivery status.",
+        "parameters": [
+          {
+            "name": "delivery-id",
+            "in": "path",
+            "description": "The id of the delivery",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryStatusResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Delivery id is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Get letters of current user.",
+        "parameters": [
+          {
+            "name": "from-date",
+            "in": "query",
+            "description": "Filter letters with the send date (yyyy-MM-dd). Letters were sent since 'from-date' value will be return.<br/>Both <b>from-date</b> and <b>to-date</b> need to be specified to filter letters within a time period.<br/>Example: 2021-10-01",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is-business-tenant",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "letter-folder",
+            "in": "query",
+            "description": "Filter letters in specific folder<br/>Acceptable values:<br/><b>INBOX_FOLDER</b> for inbox letters<br/><b>SENT_FOLDER</b> for outbox letters<br/><br /><br/><b>INBOX_FOLDER</b> is chosen <b>by default</b>",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/LetterFolder"
+                },
+                {
+                  "default": "INBOX_FOLDER"
+                }
+              ]
+            }
+          },
+          {
+            "name": "letter-types",
+            "in": "query",
+            "description": "Filter letters with this media type<br/>Acceptable values:<br/><b>CLASSIC_LETTER</b> for classic letters<br/><b>SMART_LETTER</b> for smart letters<br/><b>SMART_LETTER_ANSWER</b> for smart letter answers<br/><b>SIMPLE_SHORT_MESSAGE</b> for simple short message<br/><b>INCAMAIL</b> for IncaMail<br/><b>SECURESEND</b> for SecureSend<br /><br/><b>CLASSIC_LETTER</b> is chosen <b>by default</b>",
+            "required": true,
+            "schema": {
+              "default": "CLASSIC_LETTER",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LetterType"
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Define the limit of the letter list that this API returns.<br />For example, if a user have 20 letters in their inbox, and this <b>limit</b> parameter is 5, and the <b>offset</b> parameter is 0,<br />then this API will return letter list containing the first 5 letters<br />If not set, then default value of 48 is used",
+            "schema": {
+              "format": "int32",
+              "default": "48",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Define which position to start getting letter list.<br />For example, if a user have 20 letters in their inbox, and this <b>offset</b> parameter is 5,<br />then this API will return letter list from the 5th letter.<br />If not set, then default value of 0 is used",
+            "schema": {
+              "format": "int32",
+              "default": "0",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "read-status",
+            "in": "query",
+            "description": "Filter letters with read status<br/>Acceptable values:<br/><b>READ</b> for read letters<br/><b>UNREAD</b> for unread letters<br/><b>ALL</b> for all letters<br/><b>ALL</b> is chosen <b>by default</b>",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/LetterReadStatusFilterParam"
+                },
+                {
+                  "default": "ALL"
+                }
+              ]
+            }
+          },
+          {
+            "name": "senderCaseId",
+            "in": "query",
+            "description": "Filter letters with sender case id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "senderEndToEndId",
+            "in": "query",
+            "description": "Filter letters with sender end to end id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "senderParticipantId",
+            "in": "query",
+            "description": "Filter letters with sender participant id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "senderUserId",
+            "in": "query",
+            "description": "Filter letters with sender user id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to-date",
+            "in": "query",
+            "description": "Filter letters with the send date (yyyy-MM-dd). Letters were sent before 'to-date' value will be return<br/>Both <b>from-date</b> and <b>to-date</b> need to be specified to filter letters within a time period.<br/>Example: 2021-10-01",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "with-reminder",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve letters successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Letter"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Get a letter of current user with given id.",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "The id of the letter",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve letter successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Letter"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Delete letter",
+        "description": "Delete letter by letter id",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "Id of the letter needed to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}/accept": {
+      "post": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Accept a letter by id.",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "Id of the letter to accept",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "656d961f852ea03ec718ab5d"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}/archive": {
+      "patch": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Archive a letter from Letterbox to the root or to a specific folder in Storage.",
+        "description": "If the letter is already archived and in the Storage, the exception will be thrown.",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "The ID of the letter to archive",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6461ba8d85f2cb38c91b82d4"
+          },
+          {
+            "name": "destination-directory-id",
+            "in": "query",
+            "description": "Destination folder id. If empty, the letter will be stored in the root storage.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "637b04533b81694d793c2159"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Store letter successfully."
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}/content": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Get the content of a letter with given id.",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "The id of the letter",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream, application/json": {
+                "schema": {
+                  "format": "byte",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}/reject": {
+      "post": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Reject a letter by id.",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "Id of the letter to reject",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "656d961f852ea03ec718ab5d"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}/restore": {
+      "post": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Restore a letter being deleted from inbox by letter id.",
+        "description": "Recover letter by letter id",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "Id of the letter needed to be restored",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "656d961f852ea03ec718ab5d"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/{letter-id}/thumbnail": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Get thumbnail of a letter with given id.",
+        "description": "Thumbnail is returned as an stream of bytes with <b>JPEG</b> image format. Default image size is 90x128 pixels.",
+        "parameters": [
+          {
+            "name": "letter-id",
+            "in": "path",
+            "description": "Id of the letter to get the thumbnail for.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "65e7e536aae6544ca8dce48f"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve the letter thumbnail successfully.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/deleted": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Get deleted letters and its remaining days to be permanently deleted.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Define the limit of the letter list that this API returns.<br />For example, if a user have 20 letters in their inbox, and this <b>limit</b> parameter is 5, and the <b>offset</b> parameter is 0,<br />then this API will return letter list containing the first 5 letters<br />If not set, then default value of 48 is used",
+            "schema": {
+              "format": "int32",
+              "default": "48",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Define which position to start getting letter list.<br />For example, if a user have 20 letters in their inbox, and this <b>offset</b> parameter is 5,<br />then this API will return letter list from the 5th letter.<br />If not set, then default value of 0 is used",
+            "schema": {
+              "format": "int32",
+              "default": "0",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sender-participant-id",
+            "in": "query",
+            "description": "Filter count letters from a specific sender by their participant id. Example: aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve deleted letters successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Letter"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/inbox/count": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Get the inbox unread letters count of the current user.",
+        "parameters": [
+          {
+            "name": "sender-participant-id",
+            "in": "query",
+            "description": "Filter count letters from a specific sender by their participant id. Example: aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve letters count successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "format": "int32",
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/read": {
+      "post": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Update the READ/UNREAD status for selected letters. The default status is READ.",
+        "requestBody": {
+          "description": "Letters marked as READ/UNREAD",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadLetters"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "processed_count": {
+                      "format": "int32",
+                      "type": "integer"
+                    },
+                    "skipped_count": {
+                      "format": "int32",
+                      "type": "integer"
+                    },
+                    "failed_count": {
+                      "format": "int32",
+                      "type": "integer"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LetterReadUnreadResult"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Partial success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "processed_count": {
+                      "format": "int32",
+                      "type": "integer"
+                    },
+                    "skipped_count": {
+                      "format": "int32",
+                      "type": "integer"
+                    },
+                    "failed_count": {
+                      "format": "int32",
+                      "type": "integer"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LetterReadUnreadResult"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/letters/search": {
+      "get": {
+        "tags": [
+          "ePost Digital Letterbox"
+        ],
+        "summary": "Search for letters using keywords that can be found in the letter's title, sender's name, or content.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Define the limit of the letter list that this API returns.<br />For example, if a user have 20 letters in their inbox, and this <b>limit</b> parameter is 5, and the <b>offset</b> parameter is 0,<br />then this API will return letter list containing the first 5 letters<br />If not set, then default value of 48 is used",
+            "schema": {
+              "format": "int32",
+              "default": "48",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Define which position to start getting letter list.<br />For example, if a user have 20 letters in their inbox, and this <b>offset</b> parameter is 5,<br />then this API will return letter list from the 5th letter.<br />If not set, then default value of 0 is used",
+            "schema": {
+              "format": "int32",
+              "default": "0",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search-location",
+            "in": "query",
+            "description": "Search letters with location <br/>Acceptable values: <br/><b>ALL</b> for all location, is chosen <b>by default</b> <br/><b>INBOX</b> for inbox folder <br/><b>STORAGE</b> for letters in storage <br/><b>TRASH</b> for deleted letters in trash folder",
+            "required": false,
+            "schema": {
+              "default": "ALL",
+              "type": "string",
+              "example": "ALL"
+            }
+          },
+          {
+            "name": "sender-participant-id",
+            "in": "query",
+            "description": "Sender participant id of letters (Optional), This unique ID can be used to reference the sender",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Key words to search letters, it can be sender name, letter title, text content, etc.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve letters successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Letter"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/matching-runs": {
+      "post": {
+        "tags": [
+          "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
+        ],
+        "summary": "Identity matching process.",
+        "description": "Send metadata of your customers for matching them with ePost users. There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.<br><br>The access to this API request is restricted, because it returns detailed information about whether a credential has been matched or not. Against a fee you are able to use this detailed identity matching API. Please get in touch with an administrator to get more information.",
+        "requestBody": {
+          "description": "recipient's info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientInfo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted",
+            "headers": {
+              "Location": {
+                "description": "Location to the endpoint of getting status for this request.",
+                "style": "simple",
+                "schema": {
+                  "type": "string",
+                  "example": "https://api.klara.ch/epost/v2/matching-runs/processing/1"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchingRunResultLocation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid"
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/matching-runs/{matching-run-id}": {
+      "get": {
+        "tags": [
+          "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
+        ],
+        "summary": "Get all of matching results from matching run id.",
+        "parameters": [
+          {
+            "name": "matching-run-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve successfully. The matching status could be processing or finished.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchingRunProcessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/matching-runs/processing/{matching-run-id}": {
+      "get": {
+        "tags": [
+          "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
+        ],
+        "summary": "Checking matching process.",
+        "parameters": [
+          {
+            "name": "matching-run-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching process is processing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchingRunProcessResponse"
+                }
+              }
+            }
+          },
+          "303": {
+            "description": "Finished matching process. Then auto redirect to get matching result api /matching-runs/{matching-run-id} and return matching result."
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/matchings": {
+      "post": {
+        "tags": [
+          "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
+        ],
+        "summary": "Identity matching process.",
+        "description": "Send metadata of your customers for matching them with ePost users. The limit size of the metadata is 5 There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.<br><br>The access to this API request is restricted, because it returns detailed information about whether a credential has been matched or not. Against a fee you are able to use this detailed identity matching API. Please get in touch with an administrator to get more information.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Get matched users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MatchingResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid"
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/recipients": {
+      "get": {
+        "tags": [
+          "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
+        ],
+        "summary": "Get hashed metadata from ePost users for matching lookup.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "format": "int32",
+              "default": 100,
+              "maximum": 1000,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "min-timestamp",
+            "in": "query",
+            "description": "The minimum timestamp that sender want to filter the result. Ex: 2021-04-14T01:27:05.382Z",
+            "schema": {
+              "default": "2021-04-14T01:27:05.382Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "minimum-level-of-trust",
+            "in": "query",
+            "description": "The minimum LOT that sender want to filter the result. Ex: SILVER",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/LevelOfTrust"
+                },
+                {
+                  "default": "BRONZE",
+                  "nullable": false
+                }
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "format": "int32",
+              "default": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "primary-credential",
+            "in": "query",
+            "description": "The primary value that sender want to get a hashed value. Possible values: email|mobilenumber|postaladdress",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/HashedPrimaryCredentialType"
+                },
+                {
+                  "default": "email",
+                  "nullable": false
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchingLookup"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/standard-matching-runs": {
+      "post": {
+        "tags": [
+          "Standard ePost Digital Letterbox Identity Matching"
+        ],
+        "summary": "Standard identity matching process.",
+        "description": "Send metadata of your customers for matching them with ePost users. There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.",
+        "requestBody": {
+          "description": "recipient's info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientInfo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted",
+            "headers": {
+              "location": {
+                "description": "Location to the endpoint of getting status for this request.",
+                "style": "simple",
+                "schema": {
+                  "type": "string",
+                  "example": "https://api.klara.ch/epost/v2/standard-matching-runs/processing/1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid"
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/standard-matching-runs/{matching-run-id}": {
+      "get": {
+        "tags": [
+          "Standard ePost Digital Letterbox Identity Matching"
+        ],
+        "summary": "Get all of matching results from matching run id.",
+        "parameters": [
+          {
+            "name": "matching-run-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve successfully. The matching status could be processing or finished.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardMatchingRunProcessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/standard-matching-runs/processing/{matching-run-id}": {
+      "get": {
+        "tags": [
+          "Standard ePost Digital Letterbox Identity Matching"
+        ],
+        "summary": "Checking matching process.",
+        "parameters": [
+          {
+            "name": "matching-run-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching process is processing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardMatchingRunProcessResponse"
+                }
+              }
+            }
+          },
+          "303": {
+            "description": "Finished matching process. Then auto redirect to get matching result api /matching-runs/{matching-run-id} and return matching result."
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/standard-matchings": {
+      "post": {
+        "tags": [
+          "Standard ePost Digital Letterbox Identity Matching"
+        ],
+        "summary": "Identity matching process. Standard version just return the user's basic information.",
+        "description": "Send metadata of your customers for matching them with ePost users. The limit size of the metadata is 5 There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Get matched users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StandardMatchingResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid"
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/synchronous-deliveries": {
+      "post": {
+        "tags": [
+          "ePost Communication Platform Delivery"
+        ],
+        "summary": "Creates a synchronous delivery to send documents for a sender and receive status immediately.",
+        "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p><p style=\"color:red; font-weight:bold\">Total number of documents per delivery limit: 1500</p><p style=\"color:red; font-weight:bold\">Total number of recipients per delivery limit: 1500</p>",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryRequestV2"
+              },
+              "encoding": {
+                "files": {
+                  "contentType": "application/octet-stream"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status of the delivery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryStatusResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token"
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type"
+          },
+          "429": {
+            "description": "API rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessTokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "refresh_expires_in": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          },
+          "id_token": {
+            "type": "string"
+          },
+          "not-before-policy": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "session_state": {
+            "type": "string"
+          },
+          "otherClaims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "AdditionalEmailInfo": {
+        "description": "Contain email and its name",
+        "type": "object",
+        "properties": {
+          "email": {
+            "description": "Email address",
+            "type": "string",
+            "example": "abc@klara.ch",
+            "writeOnly": true
+          },
+          "name": {
+            "description": "Name of email",
+            "type": "string",
+            "example": "ABC",
+            "writeOnly": true
+          }
+        }
+      },
+      "BaseDeliveryMetadataV2": {
+        "description": "Metadata of one delivery v2 contain list metadata of files.",
+        "type": "object",
+        "properties": {
+          "costCenter": {
+            "description": "In each delivery, you can input the specific department name sending the delivery. In order to see the cost generated by each business unit/department in the invoice. This is an optional field and maximum of 1 value per each delivery is accepted.",
+            "type": "string"
+          },
+          "fileMetadata": {
+            "description": "List of file's metadata",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentMetadataV2"
+            }
+          }
+        }
+      },
+      "BinaryFileV2": {
+        "format": "binary",
+        "description": "A binary file, users can push the binary via API document for testing.<br />PDF binaries have to be delivered in the format PDF/A.",
+        "type": "string"
+      },
+      "BusinessStatus": {
+        "enum": [
+          "RECEIVED",
+          "WAIT_FOR_GROUP",
+          "WAIT_FOR_CONFIRMATION",
+          "CANCELLED_BY_SENDER",
+          "ACCEPTED",
+          "FAILURE",
+          "DELIVERED",
+          "REJECTED_BY_RECIPIENT",
+          "ACCEPTED_BY_RECIPIENT",
+          "CALLED_BY_RECIPIENT",
+          "NOT_CALLED_BY_RECIPIENT",
+          "UNDELIVERABLE"
+        ],
+        "type": "string"
+      },
+      "BusinessStatusHistory": {
+        "description": "A historical record of a business status change for a delivery.",
+        "type": "object",
+        "properties": {
+          "businessStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BusinessStatus"
+              },
+              {
+                "description": "The business status of the delivery at this point in history.",
+                "example": "DELIVERED"
+              }
+            ]
+          },
+          "changedAt": {
+            "format": "date-time",
+            "description": "The UTC timestamp when the business status changed.",
+            "type": "string",
+            "example": "2023-11-14T22:13:20Z"
+          },
+          "triggeredByUserFirstName": {
+            "description": "The first name of the user who triggered the status change.",
+            "type": "string",
+            "example": "John"
+          },
+          "triggeredByUserLastName": {
+            "description": "The last name of the user who triggered the status change.",
+            "type": "string",
+            "example": "Doe"
+          }
+        }
+      },
+      "DeliveryChannelPreference": {
+        "enum": [
+          "DIGITAL",
+          "PHYSICAL",
+          "SMS",
+          "AUTO",
+          "EBILL",
+          "EMAIL"
+        ],
+        "type": "string"
+      },
+      "DeliveryChannelPreview": {
+        "enum": [
+          "DIGITAL",
+          "PHYSICAL",
+          "SMS",
+          "EBILL",
+          "EMAIL"
+        ],
+        "type": "string"
+      },
+      "DeliveryMetadataV2": {
+        "description": "Metadata of one delivery v2 contain list metadata of files.",
+        "type": "object",
+        "properties": {
+          "costCenter": {
+            "description": "In each delivery, you can input the specific department name sending the delivery. In order to see the cost generated by each business unit/department in the invoice. This is an optional field and maximum of 1 value per each delivery is accepted.",
+            "type": "string"
+          },
+          "fileMetadata": {
+            "description": "List of file's metadata",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentMetadataV2"
+            }
+          },
+          "featurePricePlan": {
+            "description": "This value is optional and is used for special pricing agreement between KLARA and the sender customer. For more information, please contact KLARA admin. <br>\nIf you don't have a value given by KLARA admin team, you can set it to null which will result in standard pricing.",
+            "type": "string"
+          }
+        }
+      },
+      "DeliveryPreviewStatus": {
+        "enum": [
+          "PROCESSING",
+          "FINISHED",
+          "ERROR",
+          "EXPIRED"
+        ],
+        "type": "string"
+      },
+      "DeliveryRequestV2": {
+        "description": "A list of binary file and document metadata.",
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BinaryFileV2"
+            }
+          },
+          "metadata": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryMetadataV2"
+              },
+              {
+                "description": "metadata"
+              }
+            ]
+          }
+        }
+      },
+      "DeliveryRequestV21": {
+        "description": "A list of binary file and document metadata.",
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BinaryFileV2"
+            }
+          },
+          "largeFile": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BinaryFileV2"
+              },
+              {
+                "description": "<b>Only usable for specially activated senders!</b><br>\n<b>Only DIGITAL channel is supported.</b><br>\n<b>Delivery (binary + metadata) size limit: 1GB</b>"
+              }
+            ]
+          },
+          "metadata": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryMetadataV2"
+              },
+              {
+                "description": "metadata"
+              }
+            ]
+          }
+        }
+      },
+      "DeliveryResponseV2": {
+        "description": "A response when do a delivery.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The id of this delivery after created",
+            "type": "string"
+          }
+        }
+      },
+      "DeliveryStatus": {
+        "description": "All statuses which a delivery could have",
+        "enum": [
+          "CREATED",
+          "PROCESSING",
+          "DELIVERED",
+          "DELIVERED_WITH_ERROR",
+          "ERROR"
+        ],
+        "type": "string"
+      },
+      "DeliveryStatusResponseV2": {
+        "description": "Response of status v2 endpoint",
+        "type": "object",
+        "properties": {
+          "deliveryId": {
+            "description": "Delivery's id",
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryStatus"
+              },
+              {
+                "description": "Status of the delivery: <ul><li><b>ERROR</b>: No document is delivered successfully</li><li><b>DELIVERED_WITH_ERROR</b>: Some documents are delivered successfully</li><li><b>DELIVERED</b>: All documents are delivered successfully</li></ul>"
+              }
+            ]
+          },
+          "document": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryStatusResponseV2.Document"
+              },
+              {
+                "description": "Document information"
+              }
+            ]
+          }
+        }
+      },
+      "DeliveryStatusResponseV2.DeliveredDetail": {
+        "description": "Delivered delivery information for a single document of recipient",
+        "type": "object",
+        "properties": {
+          "deliveryChannel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryChannelPreference"
+              },
+              {
+                "description": "Delivery channel"
+              }
+            ]
+          },
+          "participantId": {
+            "description": "The participant id of the user that was delivered",
+            "type": "string"
+          },
+          "senderUserId": {
+            "description": "User id was defined by sender for each recipient",
+            "type": "string"
+          },
+          "trackingNumber": {
+            "description": "Tracking number of the document that was delivered. It's only relevant for the postage REGISTERED and APLUS.",
+            "type": "string"
+          }
+        }
+      },
+      "DeliveryStatusResponseV2.DeliveredDocument": {
+        "description": "Documents that succeeded to be delivered",
+        "type": "object",
+        "properties": {
+          "senderEndToEndId": {
+            "description": "End to end id defined by sender for each document",
+            "type": "string"
+          },
+          "documentTitle": {
+            "description": "Document title",
+            "type": "string"
+          },
+          "detail": {
+            "description": "List of recipient successfully received the document. This list is only returned when displayDeliveredDocuments is set to true when sending the delivery.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryStatusResponseV2.DeliveredDetail"
+            }
+          }
+        }
+      },
+      "DeliveryStatusResponseV2.DeliveredRecipientStatistic": {
+        "description": "The number of recipients have been already delivered to",
+        "type": "object",
+        "properties": {
+          "recipientsDeliveredDigitally": {
+            "format": "int32",
+            "description": "Number of recipients that have been delivered digitally to",
+            "type": "integer"
+          },
+          "recipientsDeliveredPhysically": {
+            "format": "int32",
+            "description": "Number of recipients that have been delivered physically to",
+            "type": "integer"
+          },
+          "recipientsWithSmsDelivered": {
+            "format": "int32",
+            "description": "Number of recipients that received SMS",
+            "type": "integer"
+          },
+          "recipientsDeliveredEbill": {
+            "format": "int32",
+            "description": "Number of recipients that have been delivered via eBill",
+            "type": "integer"
+          },
+          "recipientsDeliveredEmail": {
+            "format": "int32",
+            "description": "Number of recipients that have been delivered via email",
+            "type": "integer"
+          }
+        }
+      },
+      "DeliveryStatusResponseV2.Document": {
+        "type": "object",
+        "properties": {
+          "failedDocument": {
+            "description": "Failed delivery documents",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryStatusResponseV2.FailedDocument"
+            }
+          },
+          "deliveredDocument": {
+            "description": "Delivered documents",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryStatusResponseV2.DeliveredDocument"
+            }
+          },
+          "delivered": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryStatusResponseV2.DeliveredRecipientStatistic"
+              },
+              {
+                "description": "Statistics of delivered documents"
+              }
+            ]
+          },
+          "pendingDocuments": {
+            "format": "int32",
+            "description": "Number of documents that are in process",
+            "type": "integer"
+          }
+        }
+      },
+      "DeliveryStatusResponseV2.FailedDetail": {
+        "description": "Failed delivery information for a single document of recipient",
+        "type": "object",
+        "properties": {
+          "deliveryChannel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryChannelPreference"
+              },
+              {
+                "description": "Delivery channel"
+              }
+            ]
+          },
+          "errorCode": {
+            "description": "Error code",
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Error message",
+            "type": "string"
+          },
+          "senderUserId": {
+            "description": "User id was defined by you for each recipient",
+            "type": "string"
+          }
+        }
+      },
+      "DeliveryStatusResponseV2.FailedDocument": {
+        "description": "Documents that failed to be delivered",
+        "type": "object",
+        "properties": {
+          "senderEndToEndId": {
+            "description": "End to end id defined by you for each document. It helps you keep track the document",
+            "type": "string"
+          },
+          "documentTitle": {
+            "description": "Document title",
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExternalDocumentStatus"
+              },
+              {
+                "description": "Status of document: <ul><li><b>DELIVERED_WITH_ERROR or FAILED</b>: Fail to deliver to some recipients. Check detail field for more information</li><li><b>NOT_MATCH_ALL_RECIPIENTS</b>: Unable to find matching for all recipients. Note: Only available in case allRecipientsRequired attribute on. Check detail field to know which recipients could not do the matching</li></ul>"
+              }
+            ]
+          },
+          "errorCode": {
+            "description": "Error code: <ul><li><b>FILE_CONTAINS_MALWARE</b>: The file has viruses</li><li><b>DOCUMENT_SIZE_EXCEEDED</b>: Document size exceeded</li><li><b>DOCUMENT_IMPORT_UNKNOWN_ERROR</b>: Internal server error</li></ul>",
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Error message",
+            "type": "string"
+          },
+          "detail": {
+            "description": "A list of recipients we could not deliver to",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryStatusResponseV2.FailedDetail"
+            }
+          }
+        }
+      },
+      "DerivedHashedCredentialType": {
+        "enum": [
+          "birthDate"
+        ],
+        "type": "string"
+      },
+      "DetailInfo": {
+        "type": "object",
+        "properties": {
+          "documentMetadata": {
+            "$ref": "#/components/schemas/DocumentMetadataWithoutRecipients"
+          },
+          "matchedParticipantId": {
+            "type": "string"
+          },
+          "deliveryStatus": {
+            "type": "string"
+          },
+          "documentStatus": {
+            "type": "string"
+          },
+          "documentErrorCode": {
+            "type": "string"
+          },
+          "recipientStatus": {
+            "type": "string"
+          },
+          "recipientErrorCode": {
+            "type": "string"
+          },
+          "pricingList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailPricing"
+            }
+          }
+        }
+      },
+      "DetailPricing": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          }
+        }
+      },
+      "DigitalAdditionalInfo": {
+        "description": "Group of the digital delivery information.",
+        "type": "object",
+        "properties": {
+          "digitalDeliveryVariant": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DigitalDeliveryVariant"
+              },
+              {
+                "description": "Specifies the tier for the delivery via channel DIGITAL. This selection determines the availability of digital receipts, tracking capabilities, and recipient identification requirements. If digitalDeliveryVariant is omitted, the system defaults to 'STANDARD'.<br/><br/><b>STANDARD</b>: Standard digital delivery with proof of dispatch. Includes a digital timestamp and signature upon acceptance by ePost. [ePost Standard]<br/><b>NO_CONFIRMATION</b>: Basic digital delivery. Provides a digital delivery without additional digital receipts or tracking features. [ePost Light]<br/><b>TRACKED</b>: Enhanced delivery with retrieval tracking. Includes all features of STANDARD, plus 'Retrieval' and 'Non-retrieval' receipts to track if and when the recipient opened the message. [ePost Plus]<br/><b>REGISTERED</b>: Full legal-grade digital registered mail. Includes all TRACKED features, as well as recipient acceptance/rejection tracking and mandatory Person Identification. Important note: 'minimumLevelOfTrust' must be set to GOLD for the recipient, as verification of the recipient as a person by an online identification process is prerequisite for ePost Registered. [ePost Registered]",
+                "default": "STANDARD",
+                "example": "STANDARD"
+              }
+            ]
+          },
+          "letterAnswer": {
+            "description": "Specifies an optional recipient response option for the delivery via channel DIGITAL. When set to a supported value, the recipient is offered a corresponding action on the delivered document in the digital letterbox. This field is only considered for the DIGITAL channel; it is ignored for all other channels. Supported values are provisioned per agreement with ePost. If omitted, empty, or set to an unrecognised value, no response option is offered and the delivery proceeds normally.",
+            "type": "string"
+          }
+        }
+      },
+      "DigitalDeliveryVariant": {
+        "enum": [
+          "STANDARD",
+          "NO_CONFIRMATION",
+          "TRACKED",
+          "REGISTERED"
+        ],
+        "type": "string"
+      },
+      "DocumentMetadataV2": {
+        "description": "Metadata of one file.",
+        "required": [
+          "fileName",
+          "deliveryChannelPreferences",
+          "recipients"
+        ],
+        "type": "object",
+        "properties": {
+          "allCredentialShouldMatch": {
+            "description": "Decides if this document should be delivered to ONLY the recipients that have their credentials all matched or not.<br />If not specified, then default value of TRUE is used.<br/>This flag is only considered for the <b>DIGITAL</b> delivery in ePost.",
+            "type": "boolean"
+          },
+          "fileName": {
+            "description": "Name of document file.",
+            "type": "string"
+          },
+          "mediaType": {
+            "description": "Indicate the specific media type of the document. For sending a standard classic letter like a PDF leave this field empty. <br/>Acceptable values: <br/>\"application/vnd.ch.klara.epost.smartletter.v1+json\" for smart letter. Indicate that if this document file is a smart letter. <br/>\"application/vnd.ch.klara.epost.v1+simple_short_message\" for simple short message. To send simple short message, leave the document type empty. <br/>\"application/vnd.ch.klara.epost.v1+incamail\" Please use SecureSend instead of IncaMail. <br/>\"application/vnd.ch.klara.epost.v1+securesend\" for SecureSend. <br/>null for Physical delivery.",
+            "type": "string",
+            "example": "application/vnd.ch.klara.epost.smartletter.v1+json"
+          },
+          "deliveryChannelPreferences": {
+            "description": "This value defines your preference & priority among delivery channels. It defines that your letter/message/document should be delivered via which one of the available channels. You can input more than one delivery channel. <br><br>\nThe order of delivery channels defines the priority of each channel. Meaning, at first we try to deliver via the first mentioned delivery channel, if it's unsuccessful, we would try via the second channel mentioned, and so on. <br><br>\nIf delivery is not successful via any of the delivery methods, then an error response will be returned to the sender.<br><br>\n<b>DIGITAL</b> delivering it to the recipient's ePost letterbox (available for all types of documents/letters/messages)<br>\n<b>PHYSICAL</b> printing and sending the letter physically (only specific pdf formats are accepted)<br>\n<b>SMS</b> delivering the \"simple short message\" as a SMS to the recipient's mobile phone. (only for simple short message media type)<br>\n<b>EBILL</b> delivering it to the recipient's eBill (available for invoice document type with pdf format)<br>\n<b>EMAIL</b> delivering it to the recipient who using email<br>\n<b>AUTO</b> will try to find most suitable one from all available channel in order like this (<b>DIGITAL</b>, <b>SMS</b>, <b>EBILL</b>, <b>PHYSICAL</b>, <b>EMAIL</b>) then do the delivering",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryChannelPreference"
+            },
+            "writeOnly": true
+          },
+          "senderName": {
+            "description": "This value will be shown to the recipient as the delivery sender name.",
+            "type": "string",
+            "example": "Canton Bern",
+            "writeOnly": true
+          },
+          "senderEndToEndId": {
+            "description": "This id provided by the sender. It helps the sender to reference the document during the whole process.",
+            "type": "string",
+            "writeOnly": true
+          },
+          "senderCaseId": {
+            "description": "This id provided by the sender. If multiple Documents are related to one case (e.g. insurance) it helps the receiver to group received documents",
+            "type": "string",
+            "writeOnly": true
+          },
+          "documentReferenceDate": {
+            "format": "date",
+            "description": "This date is relevant for a document from a business point of view, it differs from the date at which the document is entered in the \"KLARA Documents\" system.\nFor eBill, The business case date can not be more than 90 days in the past and it can not be in the future.",
+            "type": "string",
+            "example": "1990-01-02",
+            "writeOnly": true
+          },
+          "documentTitle": {
+            "description": "This title will be shown to the recipient of the delivery on the application.",
+            "type": "string",
+            "example": "nameOfTheFile"
+          },
+          "documentDescription": {
+            "description": "A short description of the document shown to the recipient as a preview text.",
+            "type": "string",
+            "example": "Your health check invitation with questionnaire."
+          },
+          "documentTypes": {
+            "description": "This is the types of the document. In order to send a simple short message, leave this field empty.<br />Accepted values: message, invoice, contract, hr.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentType"
+            },
+            "writeOnly": true
+          },
+          "recipients": {
+            "description": "Recipients's informations include hashed and unhashed datas for identity matching process.",
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recipient"
+            }
+          },
+          "allRecipientsRequired": {
+            "description": "True if all recipients are required to be valid in case Digital channel otherwise not send to anyone and mark as failed.<br />If this flag true we just consider Digital delivery channel.",
+            "type": "boolean"
+          },
+          "displayDeliveredDocument": {
+            "description": "When this flag true, the delivered document with show more information like senderEndToEndId, senderUserId and documentTitle",
+            "type": "boolean"
+          },
+          "documentMessage": {
+            "description": "The message content of the simple short message",
+            "type": "string",
+            "example": "Dear Peter \n Your appointment on 28.05.2022 has been cancelled. Please contact us to arrange a new one"
+          },
+          "ebillAdditionalInfo": {
+            "$ref": "#/components/schemas/EbillAdditionalInfo"
+          },
+          "emailAdditionalInfo": {
+            "$ref": "#/components/schemas/EmailAdditionalInfo"
+          },
+          "digitalAdditionalInfo": {
+            "$ref": "#/components/schemas/DigitalAdditionalInfo"
+          },
+          "documentSignature": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DocumentSignature"
+              },
+              {
+                "description": "Singature's info if document required Singature."
+              }
+            ]
+          },
+          "forcedOnboarding": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/forcedOnboarding"
+              },
+              {
+                "description": "This object is optional. Defines whether all recipients of this document should be forced to register to ePost in order to receive this document. If the recipient is already registered to ePost, the normal delivery flow applies. If the recipient is not yet registered to ePost, we will send him an email asking him to register to ePost in order to receive the document. The document is stored for up to 60 days and will be delivered to the recipient as soon as he registers to ePost. After 60 days the delivery will expire.<br/>Reminder emails are sent to the recipient after 2, 25, 40 and 55 days.<br/>Forced onboarding is only available for the delivery channel DIGITAL. Additionally the unhashed credential EMAIL is required for forced onboarding (onboarding request email will be sent to this email address) and the minimum level of trust must be BRONZE. (It is only supported in the async deliveries API.)"
+              }
+            ]
+          },
+          "physicalAdditionalInfo": {
+            "$ref": "#/components/schemas/PhysicalAdditionalInfo"
+          }
+        }
+      },
+      "DocumentMetadataV2ForPreviewService": {
+        "description": "Document metadata for preview pricing service .",
+        "required": [
+          "fileName",
+          "deliveryChannelPreferences",
+          "recipients"
+        ],
+        "type": "object",
+        "properties": {
+          "allCredentialShouldMatch": {
+            "description": "Decides if this document should be delivered to ONLY the recipients that have their credentials all matched or not.<br />If not specified, then default value of TRUE is used.<br/>This flag is only considered for the <b>DIGITAL</b> delivery in ePost.",
+            "type": "boolean"
+          },
+          "fileName": {
+            "description": "Name of document file.",
+            "type": "string"
+          },
+          "mediaType": {
+            "description": "Indicate the specific media type of the document. For sending a standard classic letter like a PDF leave this field empty. <br/>Acceptable values: <br/>\"application/vnd.ch.klara.epost.smartletter.v1+json\" for smart letter. Indicate that if this document file is a smart letter. <br/>\"application/vnd.ch.klara.epost.v1+simple_short_message\" for simple short message. To send simple short message, leave the document type empty. <br/>\"application/vnd.ch.klara.epost.v1+incamail\" Please use SecureSend instead of IncaMail. <br/>\"application/vnd.ch.klara.epost.v1+securesend\" for SecureSend. <br/>null for Physical delivery.",
+            "type": "string",
+            "example": "application/vnd.ch.klara.epost.smartletter.v1+json"
+          },
+          "deliveryChannelPreferences": {
+            "description": "This value defines your preference & priority among delivery channels. It defines that your letter/message/document should be delivered via which one of the available channels. You can input more than one delivery channel. <br><br>\nThe order of delivery channels defines the priority of each channel. Meaning, at first we try to deliver via the first mentioned delivery channel, if it's unsuccessful, we would try via the second channel mentioned, and so on. <br><br>\nIf delivery is not successful via any of the delivery methods, then an error response will be returned to the sender.<br><br>\n<b>DIGITAL</b> delivering it to the recipient's ePost letterbox (available for all types of documents/letters/messages)<br>\n<b>PHYSICAL</b> printing and sending the letter physically (only specific pdf formats are accepted)<br>\n<b>SMS</b> delivering the \"simple short message\" as a SMS to the recipient's mobile phone. (only for simple short message media type)<br>\n<b>EBILL</b> delivering it to the recipient's eBill (available for invoice document type with pdf format)<br>\n<b>EMAIL</b> delivering it to the recipient who using email<br>\n<b>AUTO</b> will try to find most suitable one from all available channel in order like this (<b>DIGITAL</b>, <b>SMS</b>, <b>EBILL</b>, <b>PHYSICAL</b>, <b>EMAIL</b>) then do the delivering",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryChannelPreference"
+            },
+            "writeOnly": true
+          },
+          "senderName": {
+            "description": "This value will be shown to the recipient as the delivery sender name.",
+            "type": "string",
+            "example": "Canton Bern",
+            "writeOnly": true
+          },
+          "senderEndToEndId": {
+            "description": "This id provided by the sender. It helps the sender to reference the document during the whole process.",
+            "type": "string",
+            "writeOnly": true
+          },
+          "senderCaseId": {
+            "description": "This id provided by the sender. If multiple Documents are related to one case (e.g. insurance) it helps the receiver to group received documents",
+            "type": "string",
+            "writeOnly": true
+          },
+          "documentReferenceDate": {
+            "format": "date",
+            "description": "This date is relevant for a document from a business point of view, it differs from the date at which the document is entered in the \"KLARA Documents\" system.\nFor eBill, The business case date can not be more than 90 days in the past and it can not be in the future.",
+            "type": "string",
+            "example": "1990-01-02",
+            "writeOnly": true
+          },
+          "documentTitle": {
+            "description": "This title will be shown to the recipient of the delivery on the application.",
+            "type": "string",
+            "example": "nameOfTheFile"
+          },
+          "documentDescription": {
+            "description": "A short description of the document shown to the recipient as a preview text.",
+            "type": "string",
+            "example": "Your health check invitation with questionnaire."
+          },
+          "documentTypes": {
+            "description": "This is the types of the document. In order to send a simple short message, leave this field empty.<br />Accepted values: message, invoice, contract, hr.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentType"
+            },
+            "writeOnly": true
+          },
+          "recipients": {
+            "description": "Recipients's informations include hashed and unhashed datas for identity matching process.",
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recipient"
+            }
+          },
+          "allRecipientsRequired": {
+            "description": "True if all recipients are required to be valid in case Digital channel otherwise not send to anyone and mark as failed.<br />If this flag true we just consider Digital delivery channel.",
+            "type": "boolean"
+          },
+          "displayDeliveredDocument": {
+            "description": "When this flag true, the delivered document with show more information like senderEndToEndId, senderUserId and documentTitle",
+            "type": "boolean"
+          },
+          "documentMessage": {
+            "description": "The message content of the simple short message",
+            "type": "string",
+            "example": "Dear Peter \n Your appointment on 28.05.2022 has been cancelled. Please contact us to arrange a new one"
+          },
+          "ebillAdditionalInfo": {
+            "$ref": "#/components/schemas/EbillAdditionalInfo"
+          },
+          "emailAdditionalInfo": {
+            "$ref": "#/components/schemas/EmailAdditionalInfo"
+          },
+          "digitalAdditionalInfo": {
+            "$ref": "#/components/schemas/DigitalAdditionalInfo"
+          },
+          "documentSignature": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DocumentSignature"
+              },
+              {
+                "description": "Singature's info if document required Singature."
+              }
+            ]
+          },
+          "physicalAdditionalInfo": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PhysicalAdditionalInfoForPreviewService"
+              },
+              {
+                "description": "Additional information for PHYSICAL channel, use default values if it is not provided."
+              }
+            ]
+          },
+          "forcedOnboarding": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/forcedOnboarding"
+              },
+              {
+                "description": "For the preview: If no match for channel DIGITAL was found for the provided credentials, the preview result will still include channel DIGITAL in case a valid forcedOnboarding object as well as a valid recipient email address was provided in the metadata (as creating a forced onboarding delivery for the DIGITAL channel is possible in this case). In this case the participantId will be null in the preview result, as in the forced onboarding case the participant does not exist in ePost, yet.<br/>This object is optional. Defines whether all recipients of this document should be forced to register to ePost in order to receive this document. If the recipient is already registered to ePost, the normal delivery flow applies. If the recipient is not yet registered to ePost, we will send him an email asking him to register to ePost in order to receive the document. The document is stored for up to 60 days and will be delivered to the recipient as soon as he registers to ePost. After 60 days the delivery will expire.<br/>Reminder emails are sent to the recipient after 2, 25, 40 and 55 days.<br/>Forced onboarding is only available for the delivery channel DIGITAL. Additionally the unhashed credential EMAIL is required for forced onboarding (onboarding request email will be sent to this email address) and the minimum level of trust must be BRONZE. (It is only supported in the async deliveries API.)"
+              }
+            ]
+          }
+        }
+      },
+      "DocumentMetadataWithoutRecipients": {
+        "type": "object",
+        "properties": {
+          "allCredentialShouldMatch": {
+            "type": "boolean"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "senderName": {
+            "type": "string"
+          },
+          "senderEndToEndId": {
+            "type": "string"
+          },
+          "senderCaseId": {
+            "type": "string"
+          },
+          "documentReferenceDate": {
+            "format": "date",
+            "type": "string"
+          },
+          "documentTitle": {
+            "type": "string"
+          },
+          "documentTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allRecipientsRequired": {
+            "type": "boolean"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "documentMessage": {
+            "type": "string"
+          },
+          "ebillAdditionalInfo": {
+            "$ref": "#/components/schemas/EbillAdditionalInfo"
+          },
+          "emailAdditionalInfo": {
+            "$ref": "#/components/schemas/EmailAdditionalInfo"
+          },
+          "physicalAdditionalInfo": {
+            "$ref": "#/components/schemas/PhysicalAdditionalInfo1"
+          },
+          "digitalAdditionalInfo": {
+            "$ref": "#/components/schemas/DigitalAdditionalInfo"
+          }
+        }
+      },
+      "DocumentSignature": {
+        "description": "Singature's info if document required Singature.",
+        "type": "object",
+        "properties": {
+          "signatureType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SignatureType"
+              },
+              {
+                "description": "Type of signature (values: SES/AES/QES).",
+                "example": "SES"
+              }
+            ]
+          },
+          "esignProvider": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ESignProvider"
+              },
+              {
+                "description": "e-sign provider (values: SWISS_SIGN/LETS_SIGN).",
+                "example": "LETS_SIGN"
+              }
+            ]
+          },
+          "workflowId": {
+            "description": "Workflow ID of the signature.",
+            "type": "string",
+            "example": "rss"
+          },
+          "type": {
+            "description": "Document type",
+            "type": "string",
+            "example": "pdf"
+          },
+          "metaData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metadata"
+              },
+              {
+                "description": "Metadata of the signature."
+              }
+            ]
+          }
+        }
+      },
+      "DocumentType": {
+        "enum": [
+          "message",
+          "invoice",
+          "contract",
+          "hr"
+        ],
+        "type": "string"
+      },
+      "ESignProvider": {
+        "enum": [
+          "SWISS_SIGN",
+          "LETS_SIGN"
+        ],
+        "type": "string"
+      },
+      "EbillAdditionalInfo": {
+        "description": "Group of the eBill delivery information.",
+        "type": "object",
+        "properties": {
+          "dueDate": {
+            "format": "date",
+            "description": "Due date of business case",
+            "type": "string",
+            "example": "2022-12-22",
+            "writeOnly": true
+          },
+          "paymentAmount": {
+            "description": "Amount to be paid for the invoice document",
+            "type": "number",
+            "example": 20,
+            "writeOnly": true
+          },
+          "qrReference": {
+            "description": "Reference number in the invoice document, this field is referring to the QR Reference, as the biller should have provided a QR-IBAN.",
+            "type": "string",
+            "example": "RF012345QF67T8910UI123",
+            "writeOnly": true
+          }
+        }
+      },
+      "EmailAdditionalInfo": {
+        "description": "Group of the email delivery information.",
+        "type": "object",
+        "properties": {
+          "emailText": {
+            "description": "Content of the email.",
+            "type": "string",
+            "example": "Hello world.",
+            "writeOnly": true
+          },
+          "emailHtml": {
+            "description": "Content of the email in html format.",
+            "type": "string",
+            "example": "<html><h1>Hallo world</h1><br><img src=\"cid:picture1.png\"/></html>",
+            "writeOnly": true
+          },
+          "emailSubject": {
+            "description": "Subject of the email.",
+            "type": "string",
+            "example": "your invoice from KLARA",
+            "writeOnly": true
+          },
+          "sender": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdditionalEmailInfo"
+              },
+              {
+                "description": "The sender's email info (only used for sending in EMAIL channel)",
+                "writeOnly": true
+              }
+            ]
+          },
+          "replyTo": {
+            "description": "Reply to the given emails.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdditionalEmailInfo"
+            },
+            "writeOnly": true
+          },
+          "cc": {
+            "description": "Sending email as cc list.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdditionalEmailInfo"
+            },
+            "writeOnly": true
+          },
+          "bcc": {
+            "description": "Sending email as bcc list.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdditionalEmailInfo"
+            },
+            "writeOnly": true
+          },
+          "inlineImages": {
+            "description": "Inline images of the email",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailInlineImage"
+            }
+          }
+        }
+      },
+      "EmailInlineImage": {
+        "description": "Inline image for attach into email.",
+        "required": [
+          "filename",
+          "base64"
+        ],
+        "type": "object",
+        "properties": {
+          "filename": {
+            "description": "filename of the inline image",
+            "pattern": "\\S",
+            "type": "string",
+            "example": "picture1.png",
+            "nullable": false
+          },
+          "base64": {
+            "description": "file content of the inline image as base64.",
+            "pattern": "\\S",
+            "type": "string",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAABkAAAAXCAYAAAD+4+QTAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQ",
+            "nullable": false
+          }
+        }
+      },
+      "EnvelopeSize": {
+        "enum": [
+          "C4",
+          "C5",
+          "BOX",
+          "AUTO"
+        ],
+        "type": "string"
+      },
+      "ErrorMessage": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string"
+          },
+          "createdTime": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string",
+            "deprecated": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "description": "Summary of the error response",
+            "type": "string"
+          },
+          "error_description": {
+            "description": "Description of the error response",
+            "type": "string"
+          }
+        }
+      },
+      "ExternalDocumentStatus": {
+        "description": "Status of document: <ul><li><b>DELIVERED_WITH_ERROR or FAILED</b>: Fail to deliver to some recipients</li><li><b>NOT_MATCH_ALL_RECIPIENTS</b>: Unable to find matching for all recipients. Note: Only available in case allRecipientsRequired attribute on</li></ul>",
+        "enum": [
+          "FAILED",
+          "DELIVERED_WITH_ERROR",
+          "NOT_MATCH_ALL_RECIPIENTS"
+        ],
+        "type": "string"
+      },
+      "HashedPrimaryCredentialType": {
+        "enum": [
+          "email",
+          "postaladdress",
+          "mobilenumber"
+        ],
+        "type": "string"
+      },
+      "IdentityMatchingRecipient": {
+        "description": "Recipient's info include hashed and unhashed data for identity matching process.",
+        "type": "object",
+        "properties": {
+          "senderUserId": {
+            "description": "This id is for the sender to recognize the recipient.",
+            "type": "string"
+          },
+          "hashedPrimaryCredential": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HashedPrimaryCredentialType"
+              },
+              {
+                "description": "Type of the primary credential which is hashed.",
+                "example": "email"
+              }
+            ]
+          },
+          "hashedPrimaryValue": {
+            "description": "Value of the primary credential.",
+            "type": "string",
+            "example": "adu7adsfnn3489asdfn334jk"
+          },
+          "derivedHashedCredentials": {
+            "description": "These are credentials that are hashed but aren't \"Primary Credentials\". There could be more than one credential.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DerivedHashedCredentialType"
+            }
+          },
+          "derivedHashedValue": {
+            "description": "This hash value is derived from the other value \"hashedPrimaryValue\".",
+            "type": "string",
+            "example": "adu7adsfnn3489asdfn334jk"
+          },
+          "unhashedCredentials": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnhashedCredential"
+              },
+              {
+                "description": "Unhashed credential for identity matching process."
+              }
+            ]
+          },
+          "allCredentialShouldMatch": {
+            "description": "Decides if the recipient should be strictly processed with all credentials matched or not.<br />If not specified, then default value of TRUE will be used.",
+            "type": "boolean"
+          }
+        }
+      },
+      "Letter": {
+        "description": "Metadata of the letter",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Id of the letter.",
+            "type": "string",
+            "readOnly": true,
+            "example": "1"
+          },
+          "letterTitle": {
+            "description": "This is the letter title.",
+            "type": "string",
+            "example": "eVoting questionnaire"
+          },
+          "fileName": {
+            "description": "This is the name of the reference file of the letter.",
+            "type": "string",
+            "example": "invoice.pdf"
+          },
+          "senderParticipantId": {
+            "description": "The participant id of the sender.",
+            "type": "string",
+            "example": "b0f742a3-0a54-401d-bf41-38a3a9628953"
+          },
+          "senderUserId": {
+            "description": "The sender user id of the letter.",
+            "type": "string",
+            "example": "84332810"
+          },
+          "senderCaseId": {
+            "description": "The sender case id of the letter.",
+            "type": "string",
+            "example": "8wq2d8ca"
+          },
+          "senderEndToEndId": {
+            "description": "The sender end to end id of the letter.",
+            "type": "string",
+            "example": "4ffdec250928157ec24ef24716468b0f25f074e6"
+          },
+          "documentTypes": {
+            "description": "Types of the letter's document.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "contract",
+              "invoice"
+            ]
+          },
+          "letterContentReference": {
+            "description": "This is the reference link that user can use to get to content of the letter.",
+            "type": "string",
+            "example": "https://api.klara.ch/epost/v2/letters/1/content"
+          },
+          "letterType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LetterType"
+              },
+              {
+                "description": "The letter type.",
+                "example": "CLASSIC_LETTER"
+              }
+            ]
+          },
+          "receivedDateTime": {
+            "description": "The date and time (yyyy-MM-dd'T'HH:mm:ssZ) that the letter was received.",
+            "type": "string",
+            "example": "2021-09-29T04:21:10.163Z"
+          },
+          "documentMessage": {
+            "description": "The message content of the simple short message",
+            "type": "string",
+            "example": "Dear Peter \n Your appointment on 28.05.2022 has been cancelled. Please contact us to arrange a new one"
+          },
+          "description": {
+            "description": "Free-text description shown alongside the letter in eArchive. Sourced from the description supplied at upload time.",
+            "type": "string",
+            "example": "Monthly invoice file"
+          },
+          "readStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LetterReadStatus"
+              },
+              {
+                "description": "The read status of the document.",
+                "example": "READ"
+              }
+            ]
+          },
+          "remainingDayToDelete": {
+            "format": "int64",
+            "description": "The remaining days before permanently delete",
+            "type": "integer",
+            "example": 30
+          },
+          "registeredStatus": {
+            "description": "The current registration status",
+            "type": "string",
+            "example": "PENDING | ACCEPTED | LEGALLY_ACCEPTED"
+          },
+          "eLetterRegistered": {
+            "description": "Letter is registered or not",
+            "type": "boolean",
+            "example": "true/false"
+          }
+        }
+      },
+      "LetterFolder": {
+        "enum": [
+          "INBOX_FOLDER",
+          "SENT_FOLDER"
+        ],
+        "type": "string"
+      },
+      "LetterReadStatus": {
+        "enum": [
+          "READ",
+          "UNREAD"
+        ],
+        "type": "string"
+      },
+      "LetterReadStatusFilterParam": {
+        "enum": [
+          "READ",
+          "UNREAD",
+          "ALL"
+        ],
+        "type": "string"
+      },
+      "LetterReadUnreadResult": {
+        "type": "object",
+        "properties": {
+          "letter_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "LetterType": {
+        "enum": [
+          "CLASSIC_LETTER",
+          "SMART_LETTER",
+          "SMART_LETTER_ANSWER",
+          "SIMPLE_SHORT_MESSAGE",
+          "INCAMAIL",
+          "SECURESEND"
+        ],
+        "type": "string"
+      },
+      "LevelOfTrust": {
+        "enum": [
+          "BRONZE",
+          "SILVER",
+          "GOLD"
+        ],
+        "type": "string"
+      },
+      "Link": {
+        "description": "Link metadata",
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string"
+          }
+        }
+      },
+      "MatchedRecipient": {
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "description": "This field is result of identity matching process, if value is entered in request then it will have highest priority for matching search process.",
+            "type": "string"
+          },
+          "senderUserId": {
+            "description": "This id is for the sender to recognize the recipient.",
+            "type": "string"
+          },
+          "levelOfTrust": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LevelOfTrust"
+              },
+              {
+                "description": "The Levels of Trust (LoT) define how strong a user is verified in the KLARA ecosystem. Three possible level of trust: BRONZE, SILVER, GOLD."
+              }
+            ]
+          },
+          "notMatchCredentials": {
+            "description": "The list credentials not matched.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": "[EMAIl, MOBILE_NUMBER]"
+          },
+          "errorMessage": {
+            "description": "The error message of matching services (if any)",
+            "type": "string"
+          },
+          "communityId": {
+            "description": "The recipient's community ID (Matrix ID) for individual tenants active in the ePost community. Omitted when the recipient is not an individual or has no community account.",
+            "type": "string"
+          }
+        }
+      },
+      "MatchingLookup": {
+        "description": "The response of the matching look up response.",
+        "type": "object",
+        "properties": {
+          "recipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchingLookupRecipient"
+            }
+          },
+          "_links": {
+            "$ref": "#/components/schemas/MatchingLookupLink"
+          }
+        }
+      },
+      "MatchingLookupLink": {
+        "description": "The link use for matching look up.",
+        "type": "object",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "next": {
+            "$ref": "#/components/schemas/Link"
+          }
+        }
+      },
+      "MatchingLookupRecipient": {
+        "description": "The recipient data for the matching lookup response.",
+        "type": "object",
+        "properties": {
+          "hashedPrimaryValue": {
+            "type": "string"
+          },
+          "levelOfTrust": {
+            "type": "string"
+          }
+        }
+      },
+      "MatchingResponse": {
+        "type": "object",
+        "properties": {
+          "matchedRecipients": {
+            "description": "This list contain the recipient info which matched with given information.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchedRecipient"
+            }
+          },
+          "nonMatchedRecipients": {
+            "description": "This list contain the non-matched recipient with the error message corresponding.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchedRecipient"
+            }
+          }
+        }
+      },
+      "MatchingRunProcessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/MatchingRunStatus"
+          },
+          "matchingResult": {
+            "$ref": "#/components/schemas/MatchingResponse"
+          }
+        }
+      },
+      "MatchingRunResultLocation": {
+        "type": "object",
+        "properties": {
+          "matchingRunResultLocation": {
+            "description": "Contains the URL location to get the matching run result",
+            "type": "string"
+          }
+        }
+      },
+      "MatchingRunStatus": {
+        "enum": [
+          "PROCESSING",
+          "FINISHED"
+        ],
+        "type": "string"
+      },
+      "Metadata": {
+        "description": "Signature's metadata.",
+        "type": "object",
+        "properties": {
+          "remoteSigningService": {
+            "description": "Remote signing service",
+            "type": "string",
+            "example": "ses-pdf"
+          }
+        }
+      },
+      "Onboarding": {
+        "description": "This model to hold data for onboarding steps",
+        "type": "object",
+        "properties": {
+          "pinBrandedFolder": {
+            "type": "boolean"
+          },
+          "addingCredential": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrCodeCredentialData"
+              },
+              {
+                "description": "Credentials to be add to user account, who scan the qr code."
+              }
+            ]
+          }
+        }
+      },
+      "OneApiPreviewRequest": {
+        "description": "A list of binary file and document metadata.",
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BinaryFileV2"
+            }
+          },
+          "largeFile": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BinaryFileV2"
+              },
+              {
+                "description": "<b>Only usable for specially activated senders!</b><br>\n<b>Only DIGITAL channel is supported.</b><br>\n<b>Delivery (binary + metadata) size limit: 1GB</b>"
+              }
+            ]
+          },
+          "metadata": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BaseDeliveryMetadataV2"
+              },
+              {
+                "description": "metadata"
+              }
+            ]
+          }
+        }
+      },
+      "PhysicalAdditionalInfo": {
+        "description": "Group of the physical delivery information.",
+        "type": "object",
+        "properties": {
+          "duplex": {
+            "description": "If this flag is true, the Printer will print the document as both sides, otherwise just 1 side.",
+            "default": "false",
+            "type": "boolean",
+            "example": false
+          },
+          "shippingCountry": {
+            "description": "The country which the sender customer can send letters to <br /><a target=\"_blank\" href=\"/resources/shippingCountry/CountriesISO.xlsx\">All acceptable country codes for shipping country.</a>",
+            "default": "CH",
+            "type": "string",
+            "example": "CH"
+          },
+          "envelopeSize": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EnvelopeSize"
+              },
+              {
+                "description": "Size of the envelope (values: C4, C5, BOX, AUTO)",
+                "default": "AUTO",
+                "example": "C5"
+              }
+            ]
+          },
+          "postage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Postage"
+              },
+              {
+                "description": "Type of physical delivery (values: A_POST, A_PLUS, B_POST, B_POST_LARGEVOLUME, REGISTERED)",
+                "default": "A_POST",
+                "example": "A_POST"
+              }
+            ]
+          },
+          "qrInvoicePageNumber": {
+            "format": "int32",
+            "description": "The qr Invoice page number",
+            "default": "0",
+            "type": "integer",
+            "example": 0
+          },
+          "windowLocation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WindowLocation"
+              },
+              {
+                "description": "The position of the letter(values: LEFT, RIGHT)",
+                "default": "LEFT",
+                "example": "LEFT"
+              }
+            ]
+          },
+          "coverPrinterLogoId": {
+            "description": "Optional field. This field is used to print your logo on the envelope by our printer partner. If you wish to do so, please contact the KLARA administrator.",
+            "default": "",
+            "type": "string",
+            "example": "BKW.tif"
+          },
+          "attachment": {
+            "description": "Optional field. This field is used to inform the print partner to add the attachment to the letter coming from oneAPI.",
+            "default": "",
+            "type": "string",
+            "example": "myAttachment01.pdf"
+          },
+          "senderAddress": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SenderAddress"
+              },
+              {
+                "description": "Address to be printed on the letter as sender address. Optional (if no sender address is provided, the company address of the sender tenant will be printed on the letter as sender address)."
+              }
+            ]
+          }
+        }
+      },
+      "PhysicalAdditionalInfo1": {
+        "type": "object",
+        "properties": {
+          "postage": {
+            "$ref": "#/components/schemas/Postage"
+          },
+          "envelopeSize": {
+            "$ref": "#/components/schemas/EnvelopeSize"
+          },
+          "duplex": {
+            "type": "boolean"
+          },
+          "windowLocation": {
+            "$ref": "#/components/schemas/WindowLocation"
+          },
+          "qrInvoicePageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "shippingCountry": {
+            "type": "string"
+          }
+        }
+      },
+      "PhysicalAdditionalInfoForPreviewService": {
+        "description": "Additional info support for preview pricing service.",
+        "type": "object",
+        "properties": {
+          "duplex": {
+            "description": "If this flag is true, the Printer will print the document as both sides, otherwise just 1 side.",
+            "default": "false",
+            "type": "boolean",
+            "example": false
+          },
+          "shippingCountry": {
+            "description": "The country which the sender customer can send letters to <br /><a target=\"_blank\" href=\"/resources/shippingCountry/CountriesISO.xlsx\">All acceptable country codes for shipping country.</a>",
+            "default": "CH",
+            "type": "string",
+            "example": "CH"
+          },
+          "envelopeSize": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EnvelopeSize"
+              },
+              {
+                "description": "Size of the envelope (values: C4, C5, BOX, AUTO)",
+                "default": "AUTO",
+                "example": "C5"
+              }
+            ]
+          },
+          "postage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Postage"
+              },
+              {
+                "description": "Type of physical delivery (values: A_POST, A_PLUS, B_POST, B_POST_LARGEVOLUME, REGISTERED)",
+                "default": "A_POST",
+                "example": "A_POST"
+              }
+            ]
+          },
+          "qrInvoicePageNumber": {
+            "format": "int32",
+            "description": "The qr Invoice page number",
+            "default": "0",
+            "type": "integer",
+            "example": 0
+          },
+          "windowLocation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WindowLocation"
+              },
+              {
+                "description": "The position of the letter(values: LEFT, RIGHT)",
+                "default": "LEFT",
+                "example": "LEFT"
+              }
+            ]
+          },
+          "coverPrinterLogoId": {
+            "description": "Optional field. This field is used to print your logo on the envelope by our printer partner. If you wish to do so, please contact the KLARA administrator.",
+            "default": "",
+            "type": "string",
+            "example": "BKW.tif"
+          },
+          "attachment": {
+            "description": "Optional field. This field is used to inform the print partner to add the attachment to the letter coming from oneAPI.",
+            "default": "",
+            "type": "string",
+            "example": "myAttachment01.pdf"
+          },
+          "senderAddress": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SenderAddress"
+              },
+              {
+                "description": "Address to be printed on the letter as sender address. Optional (if no sender address is provided, the company address of the sender tenant will be printed on the letter as sender address)."
+              }
+            ]
+          },
+          "numberOfPage": {
+            "format": "int32",
+            "description": "Number of document page should be provided if no file uploaded",
+            "type": "integer"
+          }
+        }
+      },
+      "Postage": {
+        "enum": [
+          "A_POST",
+          "B_POST",
+          "B_POST_LARGEVOLUME",
+          "A_PLUS",
+          "REGISTERED"
+        ],
+        "type": "string"
+      },
+      "PotentialPriceItem": {
+        "description": "Preview total potential price for specific delivery channel",
+        "type": "object",
+        "properties": {
+          "channel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryChannelPreview"
+              },
+              {
+                "description": "Potential delivery channel"
+              }
+            ]
+          },
+          "price": {
+            "description": "Total potential price for specific channel",
+            "type": "number"
+          },
+          "errorCode": {
+            "description": "Error code",
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Reason can not preview price",
+            "type": "string"
+          }
+        }
+      },
+      "PreviewDeliveryChannel": {
+        "description": "List of delivery-channel preview item.",
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "description": "The participant id of the user that was delivered. Available for DIGITAL channel only.",
+            "type": "string"
+          },
+          "billRecipientId": {
+            "description": "The bill recipient id of the user that was delivered. Available for EBILL channel only.",
+            "type": "string"
+          },
+          "senderUserId": {
+            "description": "User id was defined by sender for each recipient",
+            "type": "string"
+          },
+          "senderEndToEndId": {
+            "description": "End to end id defined by sender for each document",
+            "type": "string"
+          },
+          "fileName": {
+            "description": "Name of document file uploaded",
+            "type": "string"
+          },
+          "documentTitle": {
+            "description": "Document title",
+            "type": "string"
+          },
+          "availableChannels": {
+            "description": "List of available channels that can be delivered for this recipient",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryChannelPreview"
+            }
+          },
+          "errorCode": {
+            "description": "Error code of preview delivery channel",
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Error message of preview delivery channel",
+            "type": "string"
+          }
+        }
+      },
+      "PreviewDeliveryChannelResponse": {
+        "description": "Response of delivery-channel preview with status.",
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryPreviewStatus"
+              },
+              {
+                "description": "The status of preview delivery-channel."
+              }
+            ]
+          },
+          "previewChannels": {
+            "description": "List response of delivery-channel preview.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewDeliveryChannel"
+            }
+          }
+        }
+      },
+      "PreviewDeliveryMetadataV2": {
+        "description": "Metadata of one delivery v2 contain list metadata of files for preview service.",
+        "type": "object",
+        "properties": {
+          "costCenter": {
+            "description": "In each delivery, you can input the specific department name sending the delivery. In order to see the cost generated by each business unit/department in the invoice. This is an optional field and maximum of 1 value per each delivery is accepted.",
+            "type": "string"
+          },
+          "fileMetadata": {
+            "description": "List of file's metadata",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentMetadataV2ForPreviewService"
+            }
+          }
+        }
+      },
+      "PreviewDeliveryPricingResponse": {
+        "description": "Response of delivery pricing preview with status.",
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryPreviewStatus"
+              },
+              {
+                "description": "The status of preview delivery pricing."
+              }
+            ]
+          },
+          "pricePreview": {
+            "description": "List price preview of single delivery.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewPotentialPrice"
+            }
+          }
+        }
+      },
+      "PreviewDeliveryRequestV2": {
+        "description": "A list of binary file and document metadata for preview service.",
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BinaryFileV2"
+            }
+          },
+          "largeFile": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BinaryFileV2"
+              },
+              {
+                "description": "<b>Only usable for specially activated senders!</b><br>\n<b>Only DIGITAL channel is supported.</b><br>\n<b>Delivery (binary + metadata) size limit: 1GB</b>"
+              }
+            ]
+          },
+          "metadata": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PreviewDeliveryMetadataV2"
+              },
+              {
+                "description": "metadata"
+              }
+            ]
+          }
+        }
+      },
+      "PreviewOption": {
+        "enum": [
+          "FIRST_AVAILABLE_CHANNEL",
+          "ALL_AVAILABLE_CHANNELS"
+        ],
+        "type": "string"
+      },
+      "PreviewPotentialPrice": {
+        "description": "List of delivery pricing preview item.",
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "description": "The participant id of the user that was delivered. Available for DIGITAL channel only.",
+            "type": "string"
+          },
+          "billRecipientId": {
+            "description": "The bill recipient id of the user that was delivered. Available for EBILL channel only.",
+            "type": "string"
+          },
+          "senderUserId": {
+            "description": "User id was defined by sender for each recipient",
+            "type": "string"
+          },
+          "senderEndToEndId": {
+            "description": "End to end id defined by sender for each document",
+            "type": "string"
+          },
+          "fileName": {
+            "description": "Name of document file uploaded",
+            "type": "string"
+          },
+          "documentTitle": {
+            "description": "Document title",
+            "type": "string"
+          },
+          "potentialPrices": {
+            "description": "List of potential price for each single delivery",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PotentialPriceItem"
+            }
+          },
+          "errorCode": {
+            "description": "Error code of preview pricing service",
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Error message of preview pricing service",
+            "type": "string"
+          }
+        }
+      },
+      "PublicAPIToken": {
+        "description": "A public api token object. This object holds info of tokens that can be used to access KLARA Public API",
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "description": "Token used to access KLARA Public API endpoints, should be place at Authorization header of request. Access token is valid only for one company tenant",
+            "type": "string"
+          },
+          "expires_in": {
+            "format": "int64",
+            "description": "Amount of time in seconds left that the access token is valid for",
+            "type": "integer"
+          },
+          "refresh_expires_in": {
+            "format": "int64",
+            "description": "Amount of time in seconds left that the refresh token is valid for",
+            "type": "integer"
+          },
+          "refreshToken": {
+            "description": "Token used to renew the access token",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "Type of access token that should be included in the Authorziation header of each request",
+            "type": "string"
+          }
+        }
+      },
+      "QrCodeAddress": {
+        "description": "After user scan the qr code, this address data will be added to user account in mobile app.",
+        "required": [
+          "type",
+          "firstName",
+          "lastName"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrCodeAddressType"
+              },
+              {
+                "description": "Type of an qr code address. Valid values: PO_BOX, POSTAL",
+                "example": "POSTAL",
+                "nullable": false
+              }
+            ]
+          },
+          "firstName": {
+            "description": "First name of an address.",
+            "type": "string",
+            "example": "Peter"
+          },
+          "lastName": {
+            "description": "Last name of an address.",
+            "type": "string",
+            "example": "Muster"
+          },
+          "street": {
+            "description": "Street name of an address.",
+            "type": "string",
+            "example": "Bahnhofstrasse"
+          },
+          "streetNumber": {
+            "description": "Street number of an address.",
+            "type": "string",
+            "example": "20"
+          },
+          "zipCode": {
+            "description": "Zip code of an address.",
+            "type": "string",
+            "example": "3000"
+          },
+          "city": {
+            "description": "City code of an address.",
+            "type": "string",
+            "example": "Bern"
+          },
+          "additionalAddressLine": {
+            "description": "Additional to an address.",
+            "type": "string",
+            "example": "additional address info"
+          },
+          "postOfficeBoxNumber": {
+            "description": "Post office box number",
+            "type": "string",
+            "example": "12"
+          },
+          "postOfficeBoxZip": {
+            "description": "Post office box zipcode",
+            "type": "string",
+            "example": "1212"
+          },
+          "postOfficeBoxTownName": {
+            "description": "Post office box town name",
+            "type": "string",
+            "example": "Vervey 1"
+          },
+          "verificationScore": {
+            "format": "int32",
+            "description": "Verification score",
+            "type": "integer",
+            "example": 50
+          },
+          "gender": {
+            "description": "Gender of address's owner. Allow values: \"male\", \"female\"",
+            "type": "string",
+            "example": "male"
+          }
+        }
+      },
+      "QrCodeAddressType": {
+        "enum": [
+          "PO_BOX",
+          "POSTAL"
+        ],
+        "type": "string"
+      },
+      "QrCodeCredential": {
+        "description": "After user scan the qr code, this credential data will be added to user account in mobile app.",
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrCodeCredentialName"
+              },
+              {
+                "description": "Name of an qr code credential. Valid values: MOBILE, TAX_ID, EMAIL",
+                "example": "EMAIL",
+                "nullable": false
+              }
+            ]
+          },
+          "value": {
+            "description": "Value of an qr code credential.",
+            "type": "string",
+            "example": "peter.muster@gmail.com",
+            "nullable": false
+          },
+          "verificationScore": {
+            "format": "int32",
+            "description": "Verification score",
+            "type": "integer",
+            "example": 0
+          }
+        }
+      },
+      "QrCodeCredentialData": {
+        "description": "After user scan the qr code, these address and credentials data will be added to user account in mobile app.",
+        "type": "object",
+        "properties": {
+          "othercredentials": {
+            "description": "List of credentials to be add to user account, who scan the qr code.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QrCodeCredential"
+            }
+          },
+          "address": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrCodeAddress"
+              },
+              {
+                "description": "Address to be add to user account, who scan the qr code."
+              }
+            ]
+          }
+        }
+      },
+      "QrCodeCredentialName": {
+        "enum": [
+          "MOBILE",
+          "TAX_ID",
+          "EMAIL"
+        ],
+        "type": "string"
+      },
+      "ReadLetters": {
+        "description": "Letters with read status",
+        "required": [
+          "readStatus",
+          "letterIds"
+        ],
+        "type": "object",
+        "properties": {
+          "readStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LetterReadStatus"
+              },
+              {
+                "description": "Marked the given letters as READ/UNREAD status. Default is READ",
+                "example": "READ"
+              }
+            ]
+          },
+          "letterIds": {
+            "description": "Letter ids",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "65e7e536aae6544ca8dce48f",
+              "65e7e4d2aae6544ca8dce485"
+            ]
+          }
+        }
+      },
+      "Recipient": {
+        "description": "Recipient's info include hashed and unhashed data.",
+        "type": "object",
+        "properties": {
+          "senderUserId": {
+            "description": "This id is for the sender to recognize the recipient.",
+            "type": "string"
+          },
+          "hashedPrimaryCredential": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HashedPrimaryCredentialType"
+              },
+              {
+                "description": "Type of the primary credential which is hashed.",
+                "example": "email"
+              }
+            ]
+          },
+          "hashedPrimaryValue": {
+            "description": "Value of the primary credential.",
+            "type": "string",
+            "example": "adu7adsfnn3489asdfn334jk"
+          },
+          "derivedHashedCredentials": {
+            "description": "These are credentials that are hashed but aren't \"Primary Credentials\". There could be more than one credential.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DerivedHashedCredentialType"
+            }
+          },
+          "derivedHashedValue": {
+            "description": "This hash value is derived from the other value \"hashedPrimaryValue\".",
+            "type": "string",
+            "example": "adu7adsfnn3489asdfn334jk"
+          },
+          "unhashedCredentials": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnhashedCredential"
+              },
+              {
+                "description": "Unhashed credential for identity matching process."
+              }
+            ]
+          }
+        }
+      },
+      "RecipientInfo": {
+        "required": [
+          "recipients"
+        ],
+        "type": "object",
+        "properties": {
+          "recipients": {
+            "maxItems": 50000,
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityMatchingRecipient"
+            }
+          }
+        }
+      },
+      "RecipientTrackingDataResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "deliveryId": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "deliveredTime": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdTime": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "costCenter": {
+            "type": "string"
+          },
+          "documentTitle": {
+            "type": "string"
+          },
+          "documentTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentType"
+            }
+          },
+          "unhashedCredentials": {
+            "$ref": "#/components/schemas/UnhashedCredential"
+          },
+          "senderUserId": {
+            "type": "string"
+          },
+          "cost": {
+            "type": "number"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "thirdPartyStatus": {
+            "type": "string"
+          },
+          "thirdPartyErrorMessage": {
+            "type": "string"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "deliveryChannelPreferences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryChannelPreference"
+            }
+          },
+          "detail": {
+            "$ref": "#/components/schemas/DetailInfo"
+          },
+          "pricePlan": {
+            "type": "string"
+          },
+          "businessStatusHistory": {
+            "description": "The history of business status changes for this delivery, ordered from the oldest to the most recent status change.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessStatusHistory"
+            }
+          }
+        }
+      },
+      "SenderAddress": {
+        "description": "Address to be printed on the letter as sender address. Optional (if no sender address is provided, the company address of the sender tenant will be printed on the letter as sender address).",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Sender name to be printed on the letter as part of the sender address.",
+            "type": "string",
+            "example": "ePost Service AG"
+          },
+          "street": {
+            "description": "Sender street to be printed on the letter as part of the sender address.",
+            "type": "string",
+            "example": "Bahnhofstrasse"
+          },
+          "streetNumber": {
+            "description": "Sender street number to be printed on the letter as part of the sender address.",
+            "type": "string",
+            "example": "20"
+          },
+          "zipCode": {
+            "description": "Sender zip code to be printed on the letter as part of the sender address.",
+            "type": "string",
+            "example": "3000"
+          },
+          "city": {
+            "description": "Sender city to be printed on the letter as part of the sender address.",
+            "type": "string",
+            "example": "Bern"
+          }
+        }
+      },
+      "SignatureType": {
+        "description": "Document Signature Type",
+        "enum": [
+          "SES",
+          "AES",
+          "QES"
+        ],
+        "type": "string"
+      },
+      "SortStrategy": {
+        "enum": [
+          "DESCENDING",
+          "ASCENDING"
+        ],
+        "type": "string"
+      },
+      "StandardMatchingResponse": {
+        "type": "object",
+        "properties": {
+          "matchedRecipients": {
+            "description": "This list contain the recipient basic info which matched with given information.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StandardRecipientResponse"
+            }
+          },
+          "nonMatchedSenderUserIds": {
+            "description": "This list contain the non-matched recipient.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "StandardMatchingRunProcessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/MatchingRunStatus"
+          },
+          "matchingResult": {
+            "$ref": "#/components/schemas/StandardMatchingResponse"
+          }
+        }
+      },
+      "StandardRecipientResponse": {
+        "type": "object",
+        "properties": {
+          "senderUserId": {
+            "description": "This id is for the sender to recognize the recipient.",
+            "type": "string"
+          },
+          "participantId": {
+            "description": "This field is result of identity matching process, if value is entered in request then it will have highest priority for matching search process.",
+            "type": "string"
+          },
+          "communityId": {
+            "description": "The recipient's community ID (Matrix ID) for individual tenants active in the ePost community. Omitted when the recipient is not an individual or has no community account.",
+            "type": "string"
+          }
+        }
+      },
+      "Tenant": {
+        "description": "A Company Tenant.",
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "example": "aaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          },
+          "company_id": {
+            "format": "int64",
+            "type": "integer",
+            "example": 1
+          },
+          "company_name": {
+            "type": "string",
+            "example": "ABC Company"
+          }
+        }
+      },
+      "UnhashedCredential": {
+        "description": "Unhashed credential for identity matching process.",
+        "type": "object",
+        "properties": {
+          "universalName": {
+            "description": "If you are not sure whether the recipient is a company or a person, then this field can be used to put the name of the recipient",
+            "type": "string",
+            "example": "KLARA Business AG / Peter Muster"
+          },
+          "firstName": {
+            "description": "First name of a recipient.",
+            "type": "string",
+            "example": "Peter"
+          },
+          "lastName": {
+            "description": "Last name of a recipient.",
+            "type": "string",
+            "example": "Muster"
+          },
+          "companyName": {
+            "description": "If the tenant entry is a business customer, i.e a Company, enter the company name here.",
+            "type": "string",
+            "example": "KLARA"
+          },
+          "companyUid": {
+            "description": "If the tenant entry is a business customer, i.e a Company, enter the company UID here.<br/>In case you are inputting the company UID for delivery via eBill channel to a company recipient, pay attention to not input any value for the billRecipientId. Otherwise, delivery is only possible if both values are correct for the recipient of eBill.",
+            "type": "string",
+            "example": "CHE-123.456.789"
+          },
+          "street": {
+            "description": "Street name in the address of a recipient.<br/>As an option, street name and street number can be added here together in this field. In that case, leave the \"streetNumber\" field empty.",
+            "type": "string",
+            "example": "Bahnhofstrasse 10a"
+          },
+          "streetNumber": {
+            "description": "Street number in the address of a recipient.",
+            "type": "string",
+            "example": "20"
+          },
+          "zipCode": {
+            "description": "Zip code in the address of a recipient.",
+            "type": "string",
+            "example": "3000"
+          },
+          "city": {
+            "description": "City in the address of a recipient.",
+            "type": "string",
+            "example": "Bern"
+          },
+          "email": {
+            "description": "Email of a recipient.<br/>In case you are inputting the email of the recipient for delivery via eBill channel, pay attention to not input any value for the billRecipientId. Otherwise, delivery is only possible if both values are correct for the recipient of eBill.",
+            "type": "string",
+            "example": "peter.muster@gmail.com"
+          },
+          "mobileNumber": {
+            "description": "Mobile number of the recipient.<br/>Must be a valid international phone number: Beginning with a '+' sign followed by a 1-3 digit country code and the domestic phone number.",
+            "type": "string",
+            "example": " +41909112233"
+          },
+          "birthDate": {
+            "format": "date",
+            "description": "Birth date of a recipient in ISO 8601 format (yyyy-mm-dd)",
+            "type": "string",
+            "example": "1990-01-02"
+          },
+          "participantId": {
+            "description": "This field is result of identity matching process, if value is entered in request then it will have highest priority for matching search process.",
+            "type": "string"
+          },
+          "clientLegacyId": {
+            "description": "This id is optional and is used to support legacy systems.",
+            "type": "string"
+          },
+          "minimumLevelOfTrust": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LevelOfTrust"
+              },
+              {
+                "description": "The Levels of Trust (LoT) define how strong a user is verified in the KLARA ecosystem. Three possible level of trust: BRONZE, SILVER, GOLD."
+              }
+            ]
+          },
+          "socialSecurityNumber": {
+            "description": "Social security number of a recipient and must be unique.",
+            "type": "string",
+            "example": "756.1234.5678.97"
+          },
+          "taxId": {
+            "description": "Tax ID of a recipient and must be unique.",
+            "type": "string",
+            "example": "263125"
+          },
+          "postOfficeBoxNumber": {
+            "description": "Post office box number",
+            "type": "string",
+            "example": "12"
+          },
+          "postOfficeBoxZip": {
+            "description": "Post office box zipcode",
+            "type": "string",
+            "example": "1212"
+          },
+          "postOfficeBoxTownName": {
+            "description": "Post office box town name",
+            "type": "string",
+            "example": "Vervey 1"
+          },
+          "unstructuredAddressLine01": {
+            "description": "If you are not sure which part of the address is name, street, house number, city or postcode, then you can input your address in the unstructured line 1 to 3. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+            "type": "string",
+            "example": "Peter Muster"
+          },
+          "unstructuredAddressLine02": {
+            "description": "If you are not sure which part of the address is name, street, house number, city or postcode, then you can input your address in the unstructured line 1 to 3. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+            "type": "string",
+            "example": "Bahnhofsstr 20"
+          },
+          "unstructuredAddressLine03": {
+            "description": "If your unstructured address has more than 3 lines, input all the remaining in this line. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+            "type": "string",
+            "example": "8004 Zurich Switzerland"
+          },
+          "billRecipientId": {
+            "description": "Bill recipient Id from eBill. Using in eBill channel only.<br/>In order to deliver via eBill channel, you can input this credential. If you input more than 1 credential for eBill, delivery can happen only if all of these credentials are found in the recipient of eBill by SIX.",
+            "type": "string",
+            "example": "41010560425610173"
+          }
+        }
+      },
+      "WindowLocation": {
+        "enum": [
+          "LEFT",
+          "RIGHT"
+        ],
+        "type": "string"
+      },
+      "channel": {
+        "description": "The channel we will use to contact the recipient with the request to onboard to ePost. Currently, only EMAIL is supported.",
+        "enum": [
+          "EMAIL"
+        ],
+        "type": "string"
+      },
+      "forcedOnboarding": {
+        "description": "This object is optional. Defines whether all recipients of this document should be forced to register to ePost in order to receive this document. If the recipient is already registered to ePost, the normal delivery flow applies. If the recipient is not yet registered to ePost, we will send him an email asking him to register to ePost in order to receive the document. The document is stored for up to 60 days and will be delivered to the recipient as soon as he registers to ePost. After 60 days the delivery will expire.\nReminder emails are sent to the recipient after 2, 25, 40 and 55 days.\nForced onboarding is only available for the delivery channel DIGITAL. Additionally the unhashed credential EMAIL is required for forced onboarding (onboarding request email will be sent to this email address) and the minimum level of trust must be BRONZE.",
+        "type": "object",
+        "properties": {
+          "channel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/channel"
+              },
+              {
+                "description": "The channel we will use to contact the recipient with the request to onboard to ePost. Currently, only EMAIL is supported.",
+                "example": "EMAIL",
+                "writeOnly": true
+              }
+            ]
+          },
+          "language": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/language"
+              },
+              {
+                "description": "Language of the recipient. Defines the language we will use in the email we send to the recipient with the request to onboard to ePost.",
+                "example": "EN",
+                "writeOnly": true
+              }
+            ]
+          },
+          "emailToBeInformedWhenExpired": {
+            "description": "This email address is used to inform the sender, in case the forced onboarding eLetter expires after 60 days (recipient didn't register) or should an error occur in the delivery of the forced onboarding eLetter.",
+            "type": "string",
+            "example": "peter.muster@gmail.com"
+          }
+        }
+      },
+      "language": {
+        "description": "Language of the recipient. Defines the language we will use in the email we send to the recipient with the request to onboard to ePost.",
+        "enum": [
+          "EN",
+          "DE",
+          "FR",
+          "IT"
+        ],
+        "type": "string"
+      }
+    },
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "name": "X-API-KEY",
+        "in": "header"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
