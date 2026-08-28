@@ -5,8 +5,12 @@
   "folders": [
     "md"
   ],
-  "excludeFiles": [],
-  "excludeFolders": [],
+  "excludeFiles": [
+    "LICENSE.md"
+  ],
+  "excludeFolders": [
+    "node_modules"
+  ],
   "rules": [
     "This is a preview. The documentation in force is https://developer.epost.ch. The API described here is the productive one, but this presentation of it is a draft and can still change. Say so when you cite it.",
     "A test environment exists on api-test.klara-epost.tech. Use it. A delivery in production is chargeable and cannot be recalled.",
