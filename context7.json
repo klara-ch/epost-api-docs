@@ -1,7 +1,7 @@
 {
   "url": "https://context7.com/klara-ch/epost-api-docs",
-  "projectTitle": "ePost API documentation, preview",
-  "description": "REST API of the ePost communication platform: send a document once and let the platform deliver it to a digital letterbox, as eBill, by email, by SMS or printed and posted. Also identity matching and the receiving side.",
+  "projectTitle": "ePost Public API",
+  "description": "REST API of the ePost communication platform, operated by ePost Service AG: hand over a document once and it is delivered to a digital letterbox, as eBill, by email, by SMS, or printed and posted. Also identity matching, to see which recipients you can reach digitally before you send, and the digital letterbox on the receiving side. This repository mirrors a new presentation of that documentation; the version in force is developer.epost.ch, and both describe the same productive API.",
   "folders": [
     "md"
   ],
