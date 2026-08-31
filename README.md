@@ -11,7 +11,7 @@ source.
 - Canonical documentation: https://developer.klara.ch/epost-preview/
 - OpenAPI specification: https://developer.klara.ch/epost-preview/epost-openapi.json
 - Index of all files: https://developer.klara.ch/epost-preview/llms.txt
-- Built at: 28 August 2026
+- Built at: 31 August 2026
 
 > This is a preview. The documentation in force is https://developer.epost.ch. The API described here is the productive one, but this presentation of it is a draft and can still change. Say so when you cite it.
 

@@ -57,6 +57,7 @@
         ],
         "summary": "Returns all tenants of a user",
         "description": "A KLARA user might have multiple tenants. Use this endpoint to get the list of tenants containing tenant id, company id.<br /> The tenant and company id returned by this endpoint can be used to generate tokens to access other endpoints. Use your KLARA username and password <strong> OR </strong> access-token to get the list of tenants. <br />",
+        "operationId": "listTenants",
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -155,6 +156,7 @@
         ],
         "summary": "Generate tokens to access other KLARA core endpoints",
         "description": "After obtaining tenant id and company id for the desired tenant, use this endpoint to get the access token for a specific tenant, and refresh token. <br />A grant_type of <strong>password</strong> is used for a Password grant, which requires username, password, tenant and company id to produce access token, refresh token from scratch.<br />A grant_type of <strong>refresh_token</strong> is used for a Refresh token grant, which is used for acquiring the access token using refresh token.<br />A grant_type of <strong>token_exchange</strong> performs an OAuth 2.0 Token Exchange (RFC 8693). Provide <strong>subject_token</strong> (the raw upstream Bearer token, without the 'Bearer ' prefix) and <strong>audience</strong> to identify the target token type.<br />Supported audience values:<ul><li><strong>cossa</strong> &mdash; exchanges a COSSA bearer token for a ePost access token.</li></ul><strong>Note:</strong> subject_token must be the raw token value without the 'Bearer ' prefix.",
+        "operationId": "createPublicApiToken",
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -231,6 +233,7 @@
         ],
         "summary": "Exchange Microsoft access token for system token",
         "description": "Provide a Microsoft access token and tenant id to exchange for a system token.",
+        "operationId": "createPublicApiTokenByMicrosoft",
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {

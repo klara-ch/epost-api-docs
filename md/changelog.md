@@ -6,6 +6,14 @@ Part of the ePost API documentation. Canonical page: https://developer.klara.ch/
 
 What changed and when. Changes that can break an existing integration are marked as such.
 
+> **Note: Preview, fourth build**
+>
+> The endpoint set is unchanged. One change to the contract:
+>
+> - **Three endpoints now carry an `operationId`:** `POST /core/latest/token` as `createPublicApiToken`, `POST /core/latest/token/by-microsoft` as `createPublicApiTokenByMicrosoft` and `POST /core/latest/tenants` as `listTenants`. These three are shared with KLARA business software, which is where the ids come from. If you generate a client, its method names for these three change once.
+>
+> - **The 31 ePost endpoints still have none.** Generated clients keep inventing their method names from the path for those, and those names change whenever a path changes. See [Known limitations](https://developer.klara.ch/epost-preview/#roadmap).
+
 > **Note: Preview, third build**
 >
 > No change to the endpoint set. This build adds machine-readable versions of the documentation and corrects three statements in the text.

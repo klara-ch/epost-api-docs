@@ -8,7 +8,7 @@ Gaps we know about, listed here so you find out before you build rather than hal
 
 - **Most endpoints carry only a one-line summary.** 18 of 34 have no description beyond the title, and the digital letterbox is affected almost entirely. The parameters and schemas are complete, the prose is not.
 
-- **No endpoint carries an `operationId`.** Generated clients therefore invent method names from the path, and those names change if a path ever changes.
+- **31 endpoints of 34 still carry no `operationId`.** A generated client invents the method name from the path for those, and the name changes whenever the path changes.
 
 - **No permissions are documented.** No endpoint states which role or permission it needs.
 
