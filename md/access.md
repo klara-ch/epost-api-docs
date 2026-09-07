@@ -20,7 +20,28 @@ Self-service, no approval needed. The API lives on `https://api-test.klara-epost
 
 #### Receiving as well as sending
 
-If you also want to receive, activate the digital letterbox on the same tenant or register a second one. Either way you get a company tenant. The step that surprises people: you have to verify the company with a code, and **on test no letter is ever posted**. Request the code by email from [enterprise support](mailto:support.enterprise@epostservice.ch), stating company name, company address and the email address you registered with.
+If you also want to receive, activate the digital letterbox on the same tenant or register a second one. Either way you get a company tenant. The step that surprises people: you have to verify the company with a code, and **on test no letter is ever posted**. The code comes by email from enterprise support, so ask for it in writing.
+
+**Send this email** to [support.enterprise@epostservice.ch](mailto:support.enterprise@epostservice.ch) and replace the three values with what you entered when you registered:
+
+```
+Subject: Verification code for my ePost TEST tenant
+
+Hello
+
+I am onboarding myself to the ePost TEST environment and need a
+verification code for my tenant.
+
+It concerns the following tenant:
+
+  Company name:    Example AG
+  Company address: Teststrasse 1, 1001 Fribourg
+  User name:       hans.muster@epost.ch
+
+Best regards
+```
+
+You get the code in a reply. With it, sign in at `test.klara-epost.tech` using your sender account and enter the code to verify the company. Then the letterbox endpoints work on the test environment.
 
 #### What you can actually test
 

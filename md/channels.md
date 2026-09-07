@@ -59,9 +59,19 @@ Printed and posted through a print partner. Three rules decide whether this work
 
 **The address has to sit in the envelope window.** Either you move the address block in your templates, or you add a cover sheet, which is the cheaper route if you have many templates.
 
-Diagram: Address zone on an A4 page for a C5 envelope with the window on the left
+Two window positions are in use, and the address zone differs. Both are shown, because mirroring one in your head is a good way to print an unusable batch.
 
-Address zone for the standard C5 envelope with the window on the left, window size 50 x 100 mm, on an A4 page. The variant with the window on the right mirrors this. Confirm the exact values with [enterprise support](mailto:support.enterprise@epostservice.ch) before your first physical run.
+##### Envelope with the window on the left
+
+Diagram: Address zone on an A4 page for a C5 envelope with the window on the left, showing the franking line, the address block and the dimensions in millimetres
+
+*Standard C5 envelope, window 50 x 100 mm, window on the left, on an A4 page in portrait. The values come from the ePost specification. The franking line, the address block and the barcode all have to sit inside the dashed area.*
+
+##### Envelope with the window on the right
+
+Diagram: Address zone on an A4 page for a C5 envelope with the window on the right, showing the franking line, the address block and the dimensions in millimetres
+
+***These horizontal values are mirrored, not quoted.** The vertical values and the layout are the same as above; the horizontal ones are the left variant reflected in the centre of the sheet, because the ePost drawing for this variant gives 215 mm for the right edge of the window area, which lies beyond the 210 mm width of A4. Confirm them with [enterprise support](mailto:support.enterprise@epostservice.ch) before your first physical run.*
 
 Onboarding for the physical channel needs a test round together with ePost. Get in touch through [enterprise support](mailto:support.enterprise@epostservice.ch).
 

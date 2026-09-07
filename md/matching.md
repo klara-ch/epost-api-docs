@@ -47,13 +47,13 @@ There are two ways to combine matching with sending, and the choice matters at v
 
 Diagram: Sequence: optional matching lookup, then identity matching, then matches including the participant id
 
-Matching before delivery. You get participant ids back and use them for the delivery.
+*Matching before delivery. You get participant ids back and use them for the delivery.*
 
 #### Matching on delivery
 
 Diagram: Sequence: one call carries document and credentials, ePost matches and either delivers digitally, hands over to a print partner, or returns an error
 
-Matching on delivery. One call, and the channel is decided inside it.
+*Matching on delivery. One call, and the channel is decided inside it.*
 
 ### Which credentials identify a recipient
 
