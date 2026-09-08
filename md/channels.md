@@ -59,19 +59,21 @@ Printed and posted through a print partner. Three rules decide whether this work
 
 **The address has to sit in the envelope window.** Either you move the address block in your templates, or you add a cover sheet, which is the cheaper route if you have many templates.
 
-Two window positions are in use, and the address zone differs. Both are shown, because mirroring one in your head is a good way to print an unusable batch.
+Two window positions are in use and the address field sits in a different place for each. Both are shown, because mirroring one in your head is a good way to print an unusable batch.
 
 ##### Envelope with the window on the left
 
-Diagram: Address zone on an A4 page for a C5 envelope with the window on the left, showing the franking line, the address block and the dimensions in millimetres
+Diagram: Address position on an A4 page for a C5 or C4 envelope with the window on the left: address field 64 by 30 millimetres, 20 millimetres from the left edge and 52 millimetres from the top edge
 
-*Standard C5 envelope, window 50 x 100 mm, window on the left, on an A4 page in portrait. The values come from the ePost specification. The franking line, the address block and the barcode all have to sit inside the dashed area.*
+*Address field 64 x 30 mm, 20 mm from the left edge and 52 mm from the top edge of the sheet. Values from the Swiss Post address position specification for A4 with a C5 or C4 window envelope.*
 
 ##### Envelope with the window on the right
 
-Diagram: Address zone on an A4 page for a C5 envelope with the window on the right, showing the franking line, the address block and the dimensions in millimetres
+Diagram: Address position on an A4 page for a C5 or C4 envelope with the window on the right: address field 64 by 30 millimetres, 117 millimetres from the left edge and 52 millimetres from the top edge
 
-***These horizontal values are mirrored, not quoted.** The vertical values and the layout are the same as above; the horizontal ones are the left variant reflected in the centre of the sheet, because the ePost drawing for this variant gives 215 mm for the right edge of the window area, which lies beyond the 210 mm width of A4. Confirm them with [enterprise support](mailto:support.enterprise@epostservice.ch) before your first physical run.*
+*Same field, same distance from the top, 117 mm from the left edge. Everything else is identical, including the C5 fold line at 148.5 mm, which does not apply to C4.*
+
+The specification dimensions the address field and nothing else. The franking line and the barcode that a print partner adds are not part of it; agree those with [enterprise support](mailto:support.enterprise@epostservice.ch) if you print yourself.
 
 Onboarding for the physical channel needs a test round together with ePost. Get in touch through [enterprise support](mailto:support.enterprise@epostservice.ch).
 
