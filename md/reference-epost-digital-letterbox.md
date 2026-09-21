@@ -29,11 +29,11 @@ Get letters of current user.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/json | Retrieve letters successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/letters/deleted
 
@@ -52,11 +52,11 @@ Get deleted letters and its remaining days to be permanently deleted.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/json | Retrieve deleted letters successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/letters/inbox/count
 
@@ -73,11 +73,11 @@ Get the inbox unread letters count of the current user.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/json | Retrieve letters count successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### POST /epost/v2/letters/read
 
@@ -96,11 +96,11 @@ Update the READ/UNREAD status for selected letters. The default status is READ.
 |---|---|---|
 | `200` | application/json | Successful operation |
 | `207` | application/json | Partial success |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/letters/search
 
@@ -121,11 +121,11 @@ Search for letters using keywords that can be found in the letter's title, sende
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/json | Retrieve letters successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### DELETE /epost/v2/letters/{letter-id}
 
@@ -144,10 +144,10 @@ Delete letter by letter id
 | Status | Body | Meaning |
 |---|---|---|
 | `204` | none declared | Successful operation |
-| `400` | ErrorMessage | Data invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | ErrorMessage | Resource not found |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/letters/{letter-id}
 
@@ -164,11 +164,11 @@ Get a letter of current user with given id.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | Letter | Retrieve letter successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### POST /epost/v2/letters/{letter-id}/accept
 
@@ -185,9 +185,9 @@ Accept a letter by id.
 | Status | Body | Meaning |
 |---|---|---|
 | `204` | none declared | Successful operation |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | ErrorMessage | Resource not found |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### PATCH /epost/v2/letters/{letter-id}/archive
 
@@ -207,9 +207,9 @@ If the letter is already archived and in the Storage, the exception will be thro
 | Status | Body | Meaning |
 |---|---|---|
 | `204` | none declared | Store letter successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | ErrorMessage | Resource not found |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/letters/{letter-id}/content
 
@@ -226,11 +226,11 @@ Get the content of a letter with given id.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/octet-stream, application/json | OK |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### POST /epost/v2/letters/{letter-id}/reject
 
@@ -247,9 +247,9 @@ Reject a letter by id.
 | Status | Body | Meaning |
 |---|---|---|
 | `204` | none declared | Successful operation |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | ErrorMessage | Resource not found |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### POST /epost/v2/letters/{letter-id}/restore
 
@@ -268,10 +268,10 @@ Recover letter by letter id
 | Status | Body | Meaning |
 |---|---|---|
 | `204` | none declared | Successful operation |
-| `400` | ErrorMessage | Data invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | ErrorMessage | Resource not found |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/letters/{letter-id}/thumbnail
 
@@ -290,8 +290,8 @@ Thumbnail is returned as an stream of bytes with JPEG image format. Default imag
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/octet-stream | Retrieve the letter thumbnail successfully. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `404` | ErrorMessage | Resource not found |
-| `429` | none declared | API rate limit exceeded |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |

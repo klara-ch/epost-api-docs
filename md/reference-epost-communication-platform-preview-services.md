@@ -27,11 +27,11 @@ Delivery size limit: 2GBEach document size (binary + metadata) limit: 200MB
 | Status | Body | Meaning |
 |---|---|---|
 | `201` | DeliveryResponseV2 | Delivery preview created |
-| `400` | ErrorMessage | Data invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `415` | none declared | Unsupported Media Type |
-| `429` | none declared | API rate limit exceeded |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `415` | ErrorMessage | Unsupported Media Type Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/preview/delivery-channels/{preview-id}/status
 
@@ -48,10 +48,10 @@ Get delivery channel preview status.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | PreviewDeliveryChannelResponse | OK |
-| `400` | ErrorMessage | Preview id is invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `429` | none declared | API rate limit exceeded |
+| `400` | ErrorMessage | Preview id is invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### POST /epost/preview/delivery-prices
 
@@ -78,11 +78,11 @@ Delivery size limit: 2GBEach document size (binary + metadata) limit: 200MB
 | Status | Body | Meaning |
 |---|---|---|
 | `201` | DeliveryResponseV2 | Delivery pricing preview created |
-| `400` | ErrorMessage | Data invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
-| `415` | none declared | Unsupported Media Type |
-| `429` | none declared | API rate limit exceeded |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `415` | ErrorMessage | Unsupported Media Type Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/preview/delivery-prices/{preview-id}/status
 
@@ -99,8 +99,8 @@ Get delivery pricing preview status.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | PreviewDeliveryPricingResponse | OK |
-| `400` | ErrorMessage | Preview id is invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `403` | ErrorMessage | The current user is not allowed to access this company data |
+| `400` | ErrorMessage | Preview id is invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | The current user is not allowed to access this company data Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 | `404` | ErrorMessage | Preview id is not found |
-| `429` | none declared | API rate limit exceeded |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |

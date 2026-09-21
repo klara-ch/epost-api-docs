@@ -58,7 +58,7 @@ Ask for what the endpoint returns. `Accept: application/json` is correct almost 
 
 | Media type | Endpoints | Which ones |
 |---|---|---|
-| `application/json` | 33 | every endpoint that has one |
+| `application/json` | 34 | every endpoint that has one |
 | `application/octet-stream` | 1 | `GET /epost/v2/letters/{letter-id}/thumbnail` |
 | `application/octet-stream, application/json` | 1 | `GET /epost/v2/letters/{letter-id}/content` |
 | `image/png, application/json` | 1 | `POST /epost/onboarding` |

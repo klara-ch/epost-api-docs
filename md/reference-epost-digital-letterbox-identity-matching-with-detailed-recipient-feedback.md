@@ -19,9 +19,9 @@ Send metadata of your customers for matching them with ePost users. There is the
 | Status | Body | Meaning |
 |---|---|---|
 | `202` | MatchingRunResultLocation | Request accepted |
-| `400` | none declared | Data invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `429` | none declared | API rate limit exceeded |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/matching-runs/processing/{matching-run-id}
 
@@ -39,9 +39,9 @@ Checking matching process.
 |---|---|---|
 | `200` | MatchingRunProcessResponse | Matching process is processing. |
 | `303` | none declared | Finished matching process. Then auto redirect to get matching result api /matching-runs/{matching-run-id} and return matching result. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | none declared | Resource not found |
-| `429` | none declared | API rate limit exceeded |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/matching-runs/{matching-run-id}
 
@@ -58,9 +58,9 @@ Get all of matching results from matching run id.
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | MatchingRunProcessResponse | Retrieve successfully. The matching status could be processing or finished. |
-| `401` | none declared | No Authorization header found or invalid token |
-| `404` | none declared | Resource not found |
-| `429` | none declared | API rate limit exceeded |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### POST /epost/v2/matchings
 
@@ -79,9 +79,9 @@ Send metadata of your customers for matching them with ePost users. The limit si
 | Status | Body | Meaning |
 |---|---|---|
 | `200` | application/json | Get matched users |
-| `400` | none declared | Data invalid |
-| `401` | none declared | No Authorization header found or invalid token |
-| `429` | none declared | API rate limit exceeded |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/v2/recipients
 

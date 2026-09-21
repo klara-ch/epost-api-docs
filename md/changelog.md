@@ -6,6 +6,14 @@ Part of the ePost API documentation. Canonical page: https://developer.klara.ch/
 
 What changed and when. Changes that can break an existing integration are marked as such.
 
+> **Note: Preview, fifth build**
+>
+> The endpoint set is unchanged, 34 operations. One change to the contract, from the KLARA release of 18 September that the ePost endpoints share:
+>
+> - **Every error response now carries a documented body.** All 33 operations that had undocumented error statuses now declare `ErrorMessage` for them, with `uuid`, `createdTime`, `code` and `message`. Nothing changes on the wire; your client can now generate a type for it.
+>
+> - The two servers carry a description in the contract: the test environment states that nothing is charged and nothing is physically posted, production states that deliveries are chargeable.
+
 > **Note: Preview, fourth build**
 >
 > The endpoint set is unchanged. One change to the contract:
