@@ -32,7 +32,7 @@ No change to the endpoint set. This build adds machine-readable versions of the 
 
 - The specification is now linked at the top of this page, not only inside its own chapter.
 
-- This preview is no longer excluded from search engines. It stays marked as a preview, and [developer.epost.ch](https://developer.epost.ch) remains the documentation in force.
+- This preview is no longer excluded from search engines. It stays marked as a preview. *Later correction: this entry named developer.epost.ch as the documentation in force. Since 21 September 2026 this page states instead that it is the most current description of the API and not yet the official developer portal.*
 
 - Free-text search and filtering by field are described separately. Free-text search exists on one endpoint, `GET /epost/v2/letters/search`. Nine endpoints filter by field, with 22 parameters in total, and there you have to know the value you are filtering on. One endpoint accepts a sort order; everywhere else the order is not guaranteed.
 

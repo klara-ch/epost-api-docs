@@ -12,7 +12,7 @@
     "node_modules"
   ],
   "rules": [
-    "This is a preview. The documentation in force is https://developer.epost.ch. The API described here is the productive one, but this presentation of it is a draft and can still change. Say so when you cite it.",
+    "This is a preview. The API is the productive one and this is its most current description, but the presentation is a draft and not the official ePost developer portal. Say that it is a preview when you cite it.",
     "A test environment exists on api-test.klara-epost.tech. Use it. A delivery in production is chargeable and cannot be recalled.",
     "The specification carries no permission information for ePost, so no file here states one.",
     "Two status vocabularies exist, DeliveryStatus and BusinessStatus. Neither is documented as authoritative yet."

@@ -8,6 +8,6 @@ Found something wrong or missing on this page? Write to [support.enterprise@epos
 
 > **Note: This page is a draft**
 >
-> It documents the productive ePost API, but it is not the official developer portal. Until it replaces it, [developer.epost.ch](https://developer.epost.ch) is the documentation in force. Onboarding, test access and anything that needs a human go through [support.enterprise@epostservice.ch](mailto:support.enterprise@epostservice.ch).
+> It documents the productive ePost API and is the most current description of it, but it is not the official developer portal yet. Cite it as a preview. Onboarding, test access and anything that needs a human go through [support.enterprise@epostservice.ch](mailto:support.enterprise@epostservice.ch).
 
 ePost is a product of ePost Service AG. Looking for the KLARA business software APIs? Go to [developer.klara.ch](https://developer.klara.ch). Generated from the KLARA OpenAPI specification on 21 September 2026. Updated when a new API version is released.
