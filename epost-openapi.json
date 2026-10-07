@@ -3725,6 +3725,16 @@
           "letterAnswer": {
             "description": "Specifies an optional recipient response option for the delivery via channel DIGITAL. When set to a supported value, the recipient is offered a corresponding action on the delivered document in the digital letterbox. This field is only considered for the DIGITAL channel; it is ignored for all other channels. Supported values are provisioned per agreement with ePost. If omitted, empty, or set to an unrecognised value, no response option is offered and the delivery proceeds normally.",
             "type": "string"
+          },
+          "iLetter": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ILetter"
+              },
+              {
+                "description": "Optional iLetter reference parameters for the delivery via channel DIGITAL. Applied only when this file is an iLetter document; ignored on other documents. Members are optional and unvalidated at this layer beyond size limits."
+              }
+            ]
           }
         }
       },
@@ -4291,6 +4301,22 @@
           "mobilenumber"
         ],
         "type": "string"
+      },
+      "ILetter": {
+        "description": "iLetter reference parameters supplied per file under digitalAdditionalInfo when the file is an iLetter document.",
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "description": "Id of the iLetter Template used to create the iLetter to send. Applies only to iLetter documents; ignored on other document types.",
+            "maxLength": 128,
+            "type": "string"
+          },
+          "batchId": {
+            "description": "Optional correlation key grouping several deliveries onto one iLetter record.",
+            "maxLength": 128,
+            "type": "string"
+          }
+        }
       },
       "IdentityMatchingRecipient": {
         "description": "Recipient's info include hashed and unhashed data for identity matching process.",
