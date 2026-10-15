@@ -4,7 +4,7 @@ Part of the ePost API documentation. Canonical page: https://developer.klara.ch/
 
 ## Limits and rate limiting
 
-The API enforces a rate limit. When you exceed it, the response is `429 API rate limit exceeded`. It is declared on 28 of the 35 endpoints.
+The API enforces a rate limit. When you exceed it, the response is `429 API rate limit exceeded`. It is declared on 36 of the 43 endpoints.
 
 > **Warning: The limit is not published yet**
 >
@@ -39,11 +39,12 @@ All size figures are decimal, not binary. One kilobyte is 103 bytes, one megabyt
 
 ### Pagination
 
-5 endpoints accept pagination parameters:
+6 endpoints accept pagination parameters:
 
 | Endpoint | Parameters |
 |---|---|
 | GET `/epost/deliveries/monitoring` | `limit`, `offset` |
+| GET `/epost/signing/processes` | `limit`, `offset` |
 | GET `/epost/v2/letters` | `limit`, `offset` |
 | GET `/epost/v2/letters/deleted` | `limit`, `offset` |
 | GET `/epost/v2/letters/search` | `limit`, `offset` |
@@ -61,13 +62,14 @@ All size figures are decimal, not binary. One kilobyte is 103 bytes, one megabyt
 
 #### Filtering by field
 
-9 endpoints narrow the result by a field value, 22 parameters in total. Filtering is not searching: you have to know the value you are filtering on.
+10 endpoints narrow the result by a field value, 23 parameters in total. Filtering is not searching: you have to know the value you are filtering on.
 
 | Endpoint | Parameters |
 |---|---|
 | GET `/epost/deliveries/monitoring` | `delivery-id` |
 | POST `/epost/preview/delivery-channels` | `preview-option` |
 | POST `/epost/preview/delivery-prices` | `preview-option` |
+| GET `/epost/signing/processes` | `status` |
 | GET `/epost/v2/letters` | `from-date`, `is-business-tenant`, `letter-folder`, `letter-types`, `read-status`, `senderCaseId`, `senderEndToEndId`, `senderParticipantId`, `senderUserId`, `to-date`, `with-reminder` |
 | GET `/epost/v2/letters/deleted` | `sender-participant-id` |
 | GET `/epost/v2/letters/inbox/count` | `sender-participant-id` |

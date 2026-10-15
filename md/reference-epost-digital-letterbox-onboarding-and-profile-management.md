@@ -8,6 +8,8 @@ Improves users's onboarding experience and add credentials
 
 Generate a link or QR code on which interacted/scanned, the actions defined in the request body will be executed. The response output is decided by the Accept header of the request If a value of "text/html" is entered in the Accept header, a response with "text/html" media type is returned containing the URL. If a value of "image/png" is entered in the Accept header, a response with "image/png" media type is returned containing the QR code. Verification score of the credentials Accept value 0 or 50. Only one credential has verification score in the request body.
 
+- operationId: `createOnboardingQrCode`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |

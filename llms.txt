@@ -6,7 +6,7 @@
 
 ## Machine-readable formats
 
-- [OpenAPI specification](https://developer.klara.ch/epost-preview/epost-openapi.json): the contract, 34 operations, OpenAPI 3.0.3
+- [OpenAPI specification](https://developer.klara.ch/epost-preview/epost-openapi.json): the contract, 43 operations, OpenAPI 3.0.3
 - [Build information](https://developer.klara.ch/epost-preview/build-info.json): when this was built and from which source
 
 ## Guides
@@ -17,6 +17,7 @@
 - [Authentication](https://developer.klara.ch/epost-preview/md/authentication.md)
 - [Sending documents](https://developer.klara.ch/epost-preview/md/delivery.md)
 - [Channels in detail](https://developer.klara.ch/epost-preview/md/channels.md)
+- [iLetter](https://developer.klara.ch/epost-preview/md/iletter.md)
 - [Previewing channel and price](https://developer.klara.ch/epost-preview/md/preview.md)
 - [Identity matching](https://developer.klara.ch/epost-preview/md/matching.md)
 - [Digital letterbox](https://developer.klara.ch/epost-preview/md/letterbox.md)
@@ -34,12 +35,13 @@ Each file lists the operations of one area with parameters, request and response
 
 - [Authentication](https://developer.klara.ch/epost-preview/md/reference-authentication.md): 3 operations
 - [Standard ePost Digital Letterbox Identity Matching](https://developer.klara.ch/epost-preview/md/reference-standard-epost-digital-letterbox-identity-matching.md): 4 operations
-- [ePost Communication Platform Delivery](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-delivery.md): 3 operations
+- [ePost Communication Platform Delivery](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-delivery.md): 4 operations
 - [ePost Communication Platform Monitoring](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-monitoring.md): 1 operation
 - [ePost Communication Platform Preview Services](https://developer.klara.ch/epost-preview/md/reference-epost-communication-platform-preview-services.md): 4 operations
 - [ePost Digital LetterBox Identity Matching with detailed recipient feedback](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox-identity-matching-with-detailed-recipient-feedback.md): 5 operations
 - [ePost Digital Letterbox](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox.md): 13 operations
 - [ePost Digital Letterbox Onboarding and Profile Management](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox-onboarding-and-profile-management.md): 1 operation
+- [ePost Sign](https://developer.klara.ch/epost-preview/md/reference-epost-sign.md): 8 operations
 
 ## Notes for agents
 

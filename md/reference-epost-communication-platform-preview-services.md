@@ -8,6 +8,8 @@ Creates a preview of all the available delivery channels without delivering any 
 
 Delivery size limit: 2GBEach document size (binary + metadata) limit: 200MB
 
+- operationId: `createDeliveryChannelPreview`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -37,6 +39,8 @@ Delivery size limit: 2GBEach document size (binary + metadata) limit: 200MB
 
 Get delivery channel preview status.
 
+- operationId: `getDeliveryChannelPreviewStatus`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -58,6 +62,8 @@ Get delivery channel preview status.
 Creates a preview of all the available delivery channels without delivering any document.
 
 Delivery size limit: 2GBEach document size (binary + metadata) limit: 200MB
+
+- operationId: `createDeliveryPricePreview`
 
 **Parameters**
 
@@ -87,6 +93,8 @@ Delivery size limit: 2GBEach document size (binary + metadata) limit: 200MB
 ### GET /epost/preview/delivery-prices/{preview-id}/status
 
 Get delivery pricing preview status.
+
+- operationId: `getDeliveryPricePreviewStatus`
 
 **Parameters**
 

@@ -24,12 +24,12 @@ Two prefixes are in use. `/epost/v2` holds deliveries, identity matching and the
 
 | Verb | Used for | Endpoints |
 |---|---|---|
-| GET | Retrieving resources | 16 |
-| POST | Creating resources, and some actions such as `/send` | 16 |
+| GET | Retrieving resources | 21 |
+| POST | Creating resources, and some actions such as `/send` | 18 |
 | DELETE | Removing a resource | 1 |
-| PATCH | Partial updates | 1 |
+| PATCH | Partial updates | 3 |
 
-34 endpoints in total, which is the same number as in the reference below and in the downloadable specification.
+43 endpoints in total, which is the same number as in the reference below and in the downloadable specification.
 
 ### Headers
 
@@ -48,8 +48,8 @@ Send the matching `Content-Type`. Form-encoded endpoints reject a JSON body, whi
 
 | Media type | Endpoints | Which ones |
 |---|---|---|
-| `application/json` | 6 | `POST /epost/onboarding` `POST /epost/v2/letters/read` `POST /epost/v2/matching-runs` `POST /epost/v2/matchings` `POST /epost/v2/standard-matching-runs` `POST /epost/v2/standard-matchings` |
-| `multipart/form-data` | 4 | `POST /epost/preview/delivery-channels` `POST /epost/preview/delivery-prices` `POST /epost/v2/deliveries` `POST /epost/v2/synchronous-deliveries` |
+| `application/json` | 8 | `PATCH /epost/signing/processes/{processId}` `PATCH /epost/signing/processes/{processId}/participants/{participantId}` `POST /epost/onboarding` `POST /epost/v2/letters/read` `POST /epost/v2/matching-runs` `POST /epost/v2/matchings` `POST /epost/v2/standard-matching-runs` `POST /epost/v2/standard-matchings` |
+| `multipart/form-data` | 5 | `POST /epost/preview/delivery-channels` `POST /epost/preview/delivery-prices` `POST /epost/signing/processes` `POST /epost/v2/deliveries` `POST /epost/v2/synchronous-deliveries` |
 | `application/x-www-form-urlencoded` | 3 | `POST /core/latest/tenants` `POST /core/latest/token` `POST /core/latest/token/by-microsoft` |
 
 #### Responses
@@ -58,8 +58,9 @@ Ask for what the endpoint returns. `Accept: application/json` is correct almost 
 
 | Media type | Endpoints | Which ones |
 |---|---|---|
-| `application/json` | 34 | every endpoint that has one |
-| `application/octet-stream` | 1 | `GET /epost/v2/letters/{letter-id}/thumbnail` |
+| `application/json` | 43 | every endpoint that has one |
+| `application/octet-stream` | 2 | `GET /epost/v2/iletters/{iletter-id}/response-files/{response-file-id}/content` `GET /epost/v2/letters/{letter-id}/thumbnail` |
 | `application/octet-stream, application/json` | 1 | `GET /epost/v2/letters/{letter-id}/content` |
+| `application/pdf` | 1 | `GET /epost/signing/processes/{processId}/document` |
 | `image/png, application/json` | 1 | `POST /epost/onboarding` |
 | `text/html;charset=UTF-8, application/json` | 1 | `POST /epost/onboarding` |

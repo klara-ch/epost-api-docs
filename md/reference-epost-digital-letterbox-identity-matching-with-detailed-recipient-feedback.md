@@ -8,6 +8,8 @@ Identity matching process.
 
 Send metadata of your customers for matching them with ePost users. There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination. The access to this API request is restricted, because it returns detailed information about whether a credential has been matched or not. Against a fee you are able to use this detailed identity matching API. Please get in touch with an administrator to get more information.
 
+- operationId: `createMatchingRun`
+
 **Request body** (`application/json`, required)
 
 | Field | Type | Required | Notes |
@@ -26,6 +28,8 @@ Send metadata of your customers for matching them with ePost users. There is the
 ### GET /epost/v2/matching-runs/processing/{matching-run-id}
 
 Checking matching process.
+
+- operationId: `getMatchingRunProgress`
 
 **Parameters**
 
@@ -46,6 +50,8 @@ Checking matching process.
 ### GET /epost/v2/matching-runs/{matching-run-id}
 
 Get all of matching results from matching run id.
+
+- operationId: `getMatchingRunResult`
 
 **Parameters**
 
@@ -68,6 +74,8 @@ Identity matching process.
 
 Send metadata of your customers for matching them with ePost users. The limit size of the metadata is 5 There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination. The access to this API request is restricted, because it returns detailed information about whether a credential has been matched or not. Against a fee you are able to use this detailed identity matching API. Please get in touch with an administrator to get more information.
 
+- operationId: `matchRecipients`
+
 **Request body** (`application/json`, not marked required in the specification)
 
 | Field | Type | Required | Notes |
@@ -86,6 +94,8 @@ Send metadata of your customers for matching them with ePost users. The limit si
 ### GET /epost/v2/recipients
 
 Get hashed metadata from ePost users for matching lookup.
+
+- operationId: `listMatchingLookupRecipients`
 
 **Parameters**
 

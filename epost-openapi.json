@@ -45,6 +45,10 @@
       "description": "Identity matching with detailed response"
     },
     {
+      "name": "ePost Sign",
+      "description": "Submit documents for electronic signing (SwissSign SES / AES / QES) and track the signing process. Access requires the ePost Sign widget subscription."
+    },
+    {
       "name": "ePost Digital Letterbox",
       "description": "Access and manage your digital letter box via public API"
     }
@@ -346,6 +350,7 @@
           "ePost Communication Platform Monitoring"
         ],
         "summary": "Get monitoring data for the deliveries.",
+        "operationId": "listDeliveryMonitoringData",
         "parameters": [
           {
             "name": "delivery-id",
@@ -464,6 +469,7 @@
         ],
         "summary": "Improves users's onboarding experience and add credentials",
         "description": "Generate a link or QR code on which interacted/scanned, the actions defined in the request body will be executed.<br/>The response output is decided by the <b>Accept</b> header of the request<br/>If a value of \"text/html\" is entered in the <b>Accept</b> header, a response with \"text/html\" media type is returned containing the URL.<br/>If a value of \"image/png\" is entered in the <b>Accept</b> header, a response with \"image/png\" media type is returned containing the QR code.<br/><b>Verification score</b> of the credentials <b>Accept</b> value 0 or 50.<br/>Only one credential has <b>verification score</b> in the request body.",
+        "operationId": "createOnboardingQrCode",
         "parameters": [
           {
             "name": "encrypt-token",
@@ -563,6 +569,7 @@
         ],
         "summary": "Creates a preview of all the available delivery channels without delivering any document.",
         "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p>",
+        "operationId": "createDeliveryChannelPreview",
         "parameters": [
           {
             "name": "preview-option",
@@ -674,6 +681,7 @@
           "ePost Communication Platform Preview Services"
         ],
         "summary": "Get delivery channel preview status.",
+        "operationId": "getDeliveryChannelPreviewStatus",
         "parameters": [
           {
             "name": "preview-id",
@@ -755,6 +763,7 @@
         ],
         "summary": "Creates a preview of all the available delivery channels without delivering any document.",
         "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p>",
+        "operationId": "createDeliveryPricePreview",
         "parameters": [
           {
             "name": "preview-option",
@@ -864,6 +873,7 @@
           "ePost Communication Platform Preview Services"
         ],
         "summary": "Get delivery pricing preview status.",
+        "operationId": "getDeliveryPricePreviewStatus",
         "parameters": [
           {
             "name": "preview-id",
@@ -948,6 +958,894 @@
         ]
       }
     },
+    "/epost/signing/billing-companies": {
+      "get": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "List companies the authenticated user may bill a signing to.",
+        "description": "Returns the companies the authenticated user is allowed to charge a signing request to — i.e. where the user holds the <code>DOCUMENT_SIGN_BILLING</code> company role in the KLARA web client role system. Used by the UI to render the selection. A user can hold the role in several companies. The returned <code>companyTenantId</code> values are valid inputs for <code>billToCompanyTenantId</code> on <code>POST /signing/processes</code>. luz-documentSign only checks the role and holds no own mapping; revoking the role later does not affect already-submitted processes.",
+        "operationId": "listSigningBillingCompanies",
+        "responses": {
+          "200": {
+            "description": "Companies the user may bill to.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BillingCompany"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/signing/processes": {
+      "get": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "List signing processes of the calling tenant.",
+        "description": "Returns a lightweight page of signing processes belonging to the calling tenant: creator, title, optional description, status, deadline and creation timestamp. Use <code>GET /signing/processes/{processId}</code> for the full view. Access requires the ePost Sign widget subscription.",
+        "operationId": "listSigningProcesses",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of items per page. Defaults to 25, capped at 200.",
+            "schema": {
+              "default": "25",
+              "maximum": 200,
+              "type": "integer",
+              "example": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of items to skip from the start of the result set. Defaults to 0. Page (zero-based) <code>n</code> is <code>offset = n * limit</code>; the total item count is returned as <code>total</code> in the response.",
+            "schema": {
+              "default": "0",
+              "minimum": 0,
+              "type": "integer",
+              "example": 0
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Optional filter on lifecycle status. Allowed values: <code>CREATED</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>, <code>EXPIRED</code>, <code>CANCELLED</code>. If omitted, all processes are returned.",
+            "schema": {
+              "enum": [
+                "CREATED",
+                "IN_PROGRESS",
+                "COMPLETED",
+                "EXPIRED",
+                "CANCELLED"
+              ],
+              "type": "string",
+              "example": "IN_PROGRESS"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of signing processes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SigningProcessListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Submit a document for signing and create a signing process.",
+        "description": "Submits exactly ONE document to be signed and creates a signing process. Uses <code>multipart/form-data</code> analogous to <code>POST /epost/v2/deliveries</code>: a <code>file</code> part (the PDF) and a <code>metadata</code> JSON part (<code>SigningProcessCreateRequest</code>). The document is stored, a slot per participant is created, and the signature document is made available to each participant in the signing room. Participants without an ePost account receive a forced-onboarding email when <code>forceOnboarding = true</code> AND the credential is an email address (onboarded users can complete only <code>SES</code>). Returns the created process id and its initial status; full details via <code>GET /signing/processes/{processId}</code>. Access requires the ePost Sign widget subscription. Billing a signing to a company requires the <code>DOCUMENT_SIGN_BILLING</code> company role in the KLARA web client role system on the paying company.",
+        "operationId": "createSigningProcess",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Client-generated key that prevents duplicate process creation on retries. Optional: if omitted, retries may create a duplicate process. Same key + same payload returns the original result; same key + different payload → HTTP 409.",
+            "schema": {
+              "type": "string",
+              "example": "d3f4c2b1-9a8b-4c8b-8a5f-7c8b9a1e2d34"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Multipart body with exactly two parts: <br/><ul><li><code>file</code> — the PDF to be signed (<code>application/pdf</code>). Exactly ONE file per process. Size limit: <strong>200 MB</strong> per document. Requests advertising a larger <code>Content-Length</code> are rejected with HTTP 413 (<code>SIGNING_UPLOAD_TOO_LARGE</code>) before the body is buffered; missing / malformed <code>Content-Length</code> is rejected with HTTP 411 (<code>SIGNING_CONTENT_LENGTH_REQUIRED</code>).</li><li><code>metadata</code> — <code>application/json</code> body of type <code>SigningProcessCreateRequest</code>.</li></ul><br/><strong>How to fill <code>metadata</code></strong>:<br/><ul><li><code>title</code> (required, ≤ 255) — shown in the list and the signing room.</li><li><code>description</code> (optional, ≤ 2000).</li><li><code>signatureType</code> (required) — one of <code>SES</code>, <code>AES</code>, <code>QES</code>. Locked after creation.</li><li><code>participants</code> (required, ≥ 1) — must contain at least one <code>ADMIN</code> AND at least one <code>SIGNER</code>. See <code>ParticipantInput</code>.</li><li><code>mode</code> (optional, default <code>PARALLEL</code>) — locked after creation.</li><li><code>deadline</code> (required, ISO date).</li><li><code>documentHandling</code> (optional) — <code>allowPrint</code> / <code>allowSave</code> both default to <code>false</code>.</li><li><code>forceOnboarding</code> (required) — only effective when the participant credential is an email address.</li><li><code>billToCompanyTenantId</code> (optional) — retrieve eligible values via <code>GET /signing/billing-companies</code>. Requires the <code>DOCUMENT_SIGN_BILLING</code> company role on the referenced company.</li></ul>",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SigningProcessMultipartForm"
+              },
+              "encoding": {
+                "file": {
+                  "contentType": "application/octet-stream"
+                },
+                "metadata": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Signing process accepted and created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SigningProcessCreated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed, or caller lacks the <code>DOCUMENT_SIGN_BILLING</code> role on the requested billing company.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "<code>Content-Length</code> header missing, blank, malformed or negative (chunked transfer encoding is not supported on this endpoint).<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the 200 MB upload ceiling.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed on the metadata part.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/signing/processes/{processId}": {
+      "get": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Get a signing process — submitted data plus current signing status.",
+        "description": "Returns the data submitted on <code>POST</code> plus the signing status: who has already signed and who has not. The name shown is the one used within the signing process / signature itself — per CISO, no additional profile data is resolved from ePost. Deliberately NOT returned: the full <code>unhashedCredentials</code> (personal-data protection) and the document payload (use <code>GET /signing/processes/{processId}/document</code>).",
+        "operationId": "getSigningProcess",
+        "parameters": [
+          {
+            "name": "processId",
+            "in": "path",
+            "description": "Server-assigned unique identifier of the signing process.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state of the signing process.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SigningProcess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Update a running signing process (ADMIN-only).",
+        "description": "ADMIN-only update of a running signing process. Callable by the process creator or by <strong>any active participant that holds the <code>ADMIN</code> role</strong> (LUZ-158618). All fields on the body are optional; only the fields the caller wishes to change need to be sent. Fields set to <code>null</code> are treated as &quot;no change&quot;.<br/><br/><strong>Editable fields</strong>: <code>title</code>, <code>description</code>, <code>deadline</code> (must be strictly in the future), <code>documentHandling.allowPrint</code> / <code>documentHandling.allowSave</code>. Field-level diffing is applied and an audit trail entry (<code>PROCESS_UPDATED</code>) is written only when at least one value actually changed.<br/><br/><strong>Locked at creation</strong> (never patchable through this endpoint): <code>signatureType</code>, <code>mode</code>, <code>participants</code> (participants have their own PATCH endpoint), <code>forceOnboarding</code>, <code>billToCompanyTenantId</code>.<br/><br/><strong>Lifecycle</strong>: only <code>status = CANCELLED</code> is accepted &mdash; deactivates the process (SwissSign <code>signaturesCancelProcessing</code>), records a <code>PROCESS_CANCELLED</code> audit trail entry, schedules the process for deletion, delivers the partially-signed document to <code>RECEIVER</code> participants and notifies <code>SIGNER</code> / <code>ADMIN</code> participants. Any other status value is rejected with HTTP 400. Updates against a process in <code>COMPLETED</code>, <code>CANCELLED</code> or <code>EXPIRED</code> are rejected with HTTP 409. Callers that are not an <code>ADMIN</code> participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.",
+        "operationId": "updateSigningProcess",
+        "parameters": [
+          {
+            "name": "processId",
+            "in": "path",
+            "description": "Server-assigned unique identifier of the signing process.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Partial update. Send only the fields to change. Field-level diffing is applied downstream.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SigningProcessUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated signing process.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SigningProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body invalid, or <code>status</code> supplied but not equal to <code>CANCELLED</code>.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed, or caller is not an <code>ADMIN</code> of this process.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Process is in a terminal status (<code>COMPLETED</code>, <code>CANCELLED</code> or <code>EXPIRED</code>) and cannot be updated.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed on the request body (e.g. <code>deadline</code> not strictly in the future).<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/signing/processes/{processId}/document": {
+      "get": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Download the final signed document.",
+        "description": "Returns the FINAL signed PDF once the process is <code>COMPLETED</code>. While signing is ongoing the document is only viewable within the signing room and is NOT exposed here. Access is controlled per tenant.",
+        "operationId": "getSignedDocument",
+        "parameters": [
+          {
+            "name": "processId",
+            "in": "path",
+            "description": "Server-assigned unique identifier of the signing process.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The final signed PDF document.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Process not yet <code>COMPLETED</code> — the signed document is not available.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/signing/processes/{processId}/participants/{participantId}": {
+      "patch": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Update a participant of a running signing process (ADMIN-only).",
+        "description": "ADMIN-only update of a single participant. Callable by the process creator or by <strong>any active participant that holds the <code>ADMIN</code> role</strong> (LUZ-158618). Only reachable while the participant is <code>PENDING</code> or <code>FORCED_ONBOARDING</code> &mdash; once the participant has <code>SIGNED</code>, <code>REJECTED</code>, <code>EXPIRED</code> or has already been <code>REMOVED</code>, the request is rejected with HTTP 409. All fields on the body are optional; field-level diffing is applied and an audit trail entry (<code>PARTICIPANT_UPDATED</code>) is written only when at least one value actually changed.<br/><br/><strong>Removal</strong>: send <code>status = REMOVED</code> to remove the participant from the process. Records a <code>PARTICIPANT_REMOVED</code> audit trail entry. Any other status value is rejected with HTTP 400.<br/><br/><strong>Credential-change re-matching (LUZ-158618)</strong>: changing any credential field &mdash; <code>hashedPrimaryCredential</code>, <code>hashedPrimaryValue</code>, <code>derivedHashedCredentials</code>, <code>derivedHashedValue</code>, <code>unhashedCredentials</code>, or <code>allCredentialShouldMatch</code> &mdash; re-runs tenant-directory matching for this participant slot. If the resolved recipient changes, the previously-resolved tenant is remembered (so their subsequent sign attempts are rejected with <code>REMOVED_BY_SENDER</code>) and the initial signing notification is re-delivered to the newly resolved recipient. The previous recipient's letterbox entry is intentionally <strong>NOT</strong> withdrawn. If the new credential matches multiple accounts the request is rejected with HTTP 422.<br/><br/><strong>Last-ADMIN protection</strong>: removing the last <code>ADMIN</code> &mdash; or stripping the <code>ADMIN</code> role from the last <code>ADMIN</code> by supplying a <code>roles</code> list that does not contain <code>ADMIN</code> &mdash; is rejected with HTTP 409; the participant is left unchanged. Callers that are not an <code>ADMIN</code> participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.",
+        "operationId": "updateSigningParticipant",
+        "parameters": [
+          {
+            "name": "participantId",
+            "in": "path",
+            "description": "Process-local participant id (stable, also while the participant is unresolved). Matches <code>ParticipantStatus.internalTrackingId</code> from the <code>GET</code> view.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "b4a9b3f1-c8d0-4e2a-b5f6-b7c8d9e0a1b2"
+            }
+          },
+          {
+            "name": "processId",
+            "in": "path",
+            "description": "Server-assigned unique identifier of the signing process.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Partial update. Send only the fields to change. Field-level diffing is applied downstream.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParticipantUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated participant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipantStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body invalid, or <code>status</code> supplied but not equal to <code>REMOVED</code>.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed, or caller is not an <code>ADMIN</code> of this process.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Participant is no longer in an editable state (not <code>PENDING</code> / <code>FORCED_ONBOARDING</code>), or the change would leave the process without any <code>ADMIN</code>.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed on the request body, or a credential change re-matches to multiple accounts.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/signing/processes/{processId}/retry-delivery": {
+      "post": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Retry delivery of a signing process.",
+        "description": "Re-arms the outstanding delivery tasks of the signing process and triggers an immediate retry of only the not-yet-completed steps (e.g. delivering the signed document to <code>RECEIVER</code> participants or sending forced-onboarding invitations). Already-completed steps are not repeated. Returns the refreshed process view with the recomputed delivery state.",
+        "operationId": "retrySigningDelivery",
+        "parameters": [
+          {
+            "name": "processId",
+            "in": "path",
+            "description": "Server-assigned unique identifier of the signing process.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delivery retried; refreshed process state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SigningProcess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/epost/v2/deliveries": {
       "post": {
         "tags": [
@@ -955,11 +1853,12 @@
         ],
         "summary": "Creates a delivery and send documents for a sender.",
         "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p><p style=\"color:red; font-weight:bold\">Total number of documents per delivery limit: 2,000</p><p style=\"color:red; font-weight:bold\">Total number of recipients per delivery limit: 2,000</p>",
+        "operationId": "createDelivery",
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/DeliveryRequestV21"
+                "$ref": "#/components/schemas/DeliveryRequestV2"
               },
               "encoding": {
                 "files": {
@@ -1047,6 +1946,7 @@
           "ePost Communication Platform Delivery"
         ],
         "summary": "Get Delivery status.",
+        "operationId": "getDeliveryStatus",
         "parameters": [
           {
             "name": "delivery-id",
@@ -1121,12 +2021,126 @@
         ]
       }
     },
+    "/epost/v2/iletters/{iletter-id}/response-files/{response-file-id}/content": {
+      "get": {
+        "tags": [
+          "ePost Communication Platform Delivery"
+        ],
+        "summary": "Download a file a recipient uploaded as an answer to an iLetter.",
+        "description": "Only the sender tenant of the iLetter can read its response files. The content is available for 90 days after the answer was submitted; after that the call returns 410 with the file metadata.",
+        "operationId": "getILetterResponseFileContent",
+        "parameters": [
+          {
+            "name": "iletter-id",
+            "in": "path",
+            "description": "Id of the iLetter, as sent in the letterId field of the answer webhook.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "65e7e536aae6544ca8dce48f"
+            }
+          },
+          {
+            "name": "response-file-id",
+            "in": "path",
+            "description": "Id of the response file, as sent in the files field of the answer webhook.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "66f1a2b3c4d5e6f708192a3b"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file content. Content-Type and Content-Disposition carry the original type and file name.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The file content was removed: its 90-day retention ended, or the answer was replaced or deleted.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFileGoneResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/epost/v2/letters": {
       "get": {
         "tags": [
           "ePost Digital Letterbox"
         ],
         "summary": "Get letters of current user.",
+        "operationId": "listLetters",
         "parameters": [
           {
             "name": "from-date",
@@ -1338,6 +2352,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Get a letter of current user with given id.",
+        "operationId": "getLetter",
         "parameters": [
           {
             "name": "letter-id",
@@ -1427,6 +2442,7 @@
         ],
         "summary": "Delete letter",
         "description": "Delete letter by letter id",
+        "operationId": "deleteLetter",
         "parameters": [
           {
             "name": "letter-id",
@@ -1500,6 +2516,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Accept a letter by id.",
+        "operationId": "acceptLetter",
         "parameters": [
           {
             "name": "letter-id",
@@ -1564,6 +2581,7 @@
         ],
         "summary": "Archive a letter from Letterbox to the root or to a specific folder in Storage.",
         "description": "If the letter is already archived and in the Storage, the exception will be thrown.",
+        "operationId": "archiveLetter",
         "parameters": [
           {
             "name": "letter-id",
@@ -1637,6 +2655,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Get the content of a letter with given id.",
+        "operationId": "getLetterContent",
         "parameters": [
           {
             "name": "letter-id",
@@ -1728,6 +2747,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Reject a letter by id.",
+        "operationId": "rejectLetter",
         "parameters": [
           {
             "name": "letter-id",
@@ -1792,6 +2812,7 @@
         ],
         "summary": "Restore a letter being deleted from inbox by letter id.",
         "description": "Recover letter by letter id",
+        "operationId": "restoreLetter",
         "parameters": [
           {
             "name": "letter-id",
@@ -1866,6 +2887,7 @@
         ],
         "summary": "Get thumbnail of a letter with given id.",
         "description": "Thumbnail is returned as an stream of bytes with <b>JPEG</b> image format. Default image size is 90x128 pixels.",
+        "operationId": "getLetterThumbnail",
         "parameters": [
           {
             "name": "letter-id",
@@ -1957,6 +2979,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Get deleted letters and its remaining days to be permanently deleted.",
+        "operationId": "listDeletedLetters",
         "parameters": [
           {
             "name": "limit",
@@ -2071,6 +3094,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Get the inbox unread letters count of the current user.",
+        "operationId": "getInboxUnreadCount",
         "parameters": [
           {
             "name": "sender-participant-id",
@@ -2160,6 +3184,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Update the READ/UNREAD status for selected letters. The default status is READ.",
+        "operationId": "updateLettersReadStatus",
         "requestBody": {
           "description": "Letters marked as READ/UNREAD",
           "content": {
@@ -2299,6 +3324,7 @@
           "ePost Digital Letterbox"
         ],
         "summary": "Search for letters using keywords that can be found in the letter's title, sender's name, or content.",
+        "operationId": "searchLetters",
         "parameters": [
           {
             "name": "limit",
@@ -2435,6 +3461,7 @@
         ],
         "summary": "Identity matching process.",
         "description": "Send metadata of your customers for matching them with ePost users. There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.<br><br>The access to this API request is restricted, because it returns detailed information about whether a credential has been matched or not. Against a fee you are able to use this detailed identity matching API. Please get in touch with an administrator to get more information.",
+        "operationId": "createMatchingRun",
         "requestBody": {
           "description": "recipient's info",
           "content": {
@@ -2514,6 +3541,7 @@
           "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
         ],
         "summary": "Get all of matching results from matching run id.",
+        "operationId": "getMatchingRunResult",
         "parameters": [
           {
             "name": "matching-run-id",
@@ -2582,6 +3610,7 @@
           "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
         ],
         "summary": "Checking matching process.",
+        "operationId": "getMatchingRunProgress",
         "parameters": [
           {
             "name": "matching-run-id",
@@ -2654,6 +3683,7 @@
         ],
         "summary": "Identity matching process.",
         "description": "Send metadata of your customers for matching them with ePost users. The limit size of the metadata is 5 There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.<br><br>The access to this API request is restricted, because it returns detailed information about whether a credential has been matched or not. Against a fee you are able to use this detailed identity matching API. Please get in touch with an administrator to get more information.",
+        "operationId": "matchRecipients",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2724,6 +3754,7 @@
           "ePost Digital LetterBox Identity Matching with detailed recipient feedback"
         ],
         "summary": "Get hashed metadata from ePost users for matching lookup.",
+        "operationId": "listMatchingLookupRecipients",
         "parameters": [
           {
             "name": "limit",
@@ -2817,6 +3848,7 @@
         ],
         "summary": "Standard identity matching process.",
         "description": "Send metadata of your customers for matching them with ePost users. There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.",
+        "operationId": "createStandardMatchingRun",
         "requestBody": {
           "description": "recipient's info",
           "content": {
@@ -2889,6 +3921,7 @@
           "Standard ePost Digital Letterbox Identity Matching"
         ],
         "summary": "Get all of matching results from matching run id.",
+        "operationId": "getStandardMatchingRunResult",
         "parameters": [
           {
             "name": "matching-run-id",
@@ -2957,6 +3990,7 @@
           "Standard ePost Digital Letterbox Identity Matching"
         ],
         "summary": "Checking matching process.",
+        "operationId": "getStandardMatchingRunProgress",
         "parameters": [
           {
             "name": "matching-run-id",
@@ -3029,6 +4063,7 @@
         ],
         "summary": "Identity matching process. Standard version just return the user's basic information.",
         "description": "Send metadata of your customers for matching them with ePost users. The limit size of the metadata is 5 There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.",
+        "operationId": "matchStandardRecipients",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3100,11 +4135,12 @@
         ],
         "summary": "Creates a synchronous delivery to send documents for a sender and receive status immediately.",
         "description": "<p style=\"color:red; font-weight:bold\">Delivery size limit: 2GB</p><p style=\"color:red; font-weight:bold\">Each document size (binary + metadata) limit: 200MB</p><p style=\"color:red; font-weight:bold\">Total number of documents per delivery limit: 1500</p><p style=\"color:red; font-weight:bold\">Total number of recipients per delivery limit: 1500</p>",
+        "operationId": "createSynchronousDelivery",
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/DeliveryRequestV2"
+                "$ref": "#/components/schemas/DeliveryRequestV21"
               },
               "encoding": {
                 "files": {
@@ -3227,6 +4263,23 @@
           }
         }
       },
+      "ActorRef": {
+        "type": "object",
+        "properties": {
+          "pid": {
+            "description": "Internal ePost id of the resolved tenant. <code>null</code> while the tenant cannot yet be resolved (e.g. forced onboarding pending).",
+            "type": "string",
+            "example": "c60d31fa-f335-4957-872a-90b035632081",
+            "nullable": true
+          },
+          "name": {
+            "description": "Name as used within the signing process / signature itself (verified name applied at signing). <code>null</code> while unresolved.",
+            "type": "string",
+            "example": "Anna Muster",
+            "nullable": true
+          }
+        }
+      },
       "AdditionalEmailInfo": {
         "description": "Contain email and its name",
         "type": "object",
@@ -3259,6 +4312,21 @@
             "items": {
               "$ref": "#/components/schemas/DocumentMetadataV2"
             }
+          }
+        }
+      },
+      "BillingCompany": {
+        "type": "object",
+        "properties": {
+          "companyTenantId": {
+            "description": "Tenant id of the company. Pass this value as <code>billToCompanyTenantId</code> on submission.",
+            "type": "string",
+            "example": "c60d31fa-f335-4957-872a-90b035632081"
+          },
+          "name": {
+            "description": "Company name — display value only.",
+            "type": "string",
+            "example": "Muster AG"
           }
         }
       },
@@ -3378,6 +4446,16 @@
               "$ref": "#/components/schemas/BinaryFileV2"
             }
           },
+          "largeFile": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BinaryFileV2"
+              },
+              {
+                "description": "<b>Only usable for specially activated senders!</b><br>\n<b>Only DIGITAL channel is supported.</b><br>\n<b>Delivery (binary + metadata) size limit: 1GB</b>"
+              }
+            ]
+          },
           "metadata": {
             "allOf": [
               {
@@ -3399,16 +4477,6 @@
             "items": {
               "$ref": "#/components/schemas/BinaryFileV2"
             }
-          },
-          "largeFile": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/BinaryFileV2"
-              },
-              {
-                "description": "<b>Only usable for specially activated senders!</b><br>\n<b>Only DIGITAL channel is supported.</b><br>\n<b>Delivery (binary + metadata) size limit: 1GB</b>"
-              }
-            ]
           },
           "metadata": {
             "allOf": [
@@ -3732,9 +4800,16 @@
                 "$ref": "#/components/schemas/ILetter"
               },
               {
-                "description": "Optional iLetter reference parameters for the delivery via channel DIGITAL. Applied only when this file is an iLetter document; ignored on other documents. Members are optional and unvalidated at this layer beyond size limits."
+                "description": "iLetter reference parameters for the delivery via channel DIGITAL. Required when this file's mediaType is \"application/vnd.ch.klara.epost.v1+iletter\"; ignored on every other document (including when mediaType is omitted)."
               }
             ]
+          },
+          "documentInfoByLanguage": {
+            "description": "Optional localised overwrite of the top-level documentTitle and documentDescription, keyed by uppercase language code (DE, FR, IT, EN). A recipient whose letterbox language has an entry is shown that entry's title and description instead of the top-level values; a recipient whose language has no entry is shown the top-level documentTitle and documentDescription. Relevant only for the DIGITAL channel.",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LocalizedDocumentInfo"
+            }
           }
         }
       },
@@ -3746,6 +4821,50 @@
           "REGISTERED"
         ],
         "type": "string"
+      },
+      "DocumentHandling": {
+        "type": "object",
+        "properties": {
+          "allowPrint": {
+            "description": "Whether participants may print the document from the signing room. Defaults to <code>false</code>.",
+            "default": "false",
+            "type": "boolean",
+            "example": false
+          },
+          "allowSave": {
+            "description": "Whether participants may download / save the document from the signing room. Defaults to <code>false</code>.",
+            "default": "false",
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "DocumentInfo": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "description": "Original file name of the uploaded document.",
+            "type": "string",
+            "example": "rental-contract.pdf"
+          },
+          "contentType": {
+            "description": "MIME type of the document.",
+            "type": "string",
+            "example": "application/pdf"
+          },
+          "sizeBytes": {
+            "format": "int64",
+            "description": "Size of the document in bytes.",
+            "type": "integer",
+            "example": 154382
+          },
+          "currentVersion": {
+            "format": "int32",
+            "description": "Current document version. Increments with each collected signature.",
+            "type": "integer",
+            "example": 2
+          }
+        }
       },
       "DocumentMetadataV2": {
         "description": "Metadata of one file.",
@@ -3765,9 +4884,9 @@
             "type": "string"
           },
           "mediaType": {
-            "description": "Indicate the specific media type of the document. For sending a standard classic letter like a PDF leave this field empty. <br/>Acceptable values: <br/>\"application/vnd.ch.klara.epost.smartletter.v1+json\" for smart letter. Indicate that if this document file is a smart letter. <br/>\"application/vnd.ch.klara.epost.v1+simple_short_message\" for simple short message. To send simple short message, leave the document type empty. <br/>\"application/vnd.ch.klara.epost.v1+incamail\" Please use SecureSend instead of IncaMail. <br/>\"application/vnd.ch.klara.epost.v1+securesend\" for SecureSend. <br/>null for Physical delivery.",
+            "description": "Indicate the specific media type of the document. For sending a standard classic letter like a PDF leave this field empty. <br/>Acceptable values: <br/>\"application/vnd.ch.klara.epost.v1+simple_short_message\" for simple short message. To send simple short message, leave the document type empty. <br/>\"application/vnd.ch.klara.epost.v1+incamail\" Please use SecureSend instead of IncaMail. <br/>\"application/vnd.ch.klara.epost.v1+securesend\" for SecureSend. <br/>\"application/vnd.ch.klara.epost.v1+iletter\" for iLetter. An iLetter document carries no binary file; provide the reference in digitalAdditionalInfo.iLetter instead. <br/>null for Physical delivery.",
             "type": "string",
-            "example": "application/vnd.ch.klara.epost.smartletter.v1+json"
+            "example": "application/vnd.ch.klara.epost.v1+iletter"
           },
           "deliveryChannelPreferences": {
             "description": "This value defines your preference & priority among delivery channels. It defines that your letter/message/document should be delivered via which one of the available channels. You can input more than one delivery channel. <br><br>\nThe order of delivery channels defines the priority of each channel. Meaning, at first we try to deliver via the first mentioned delivery channel, if it's unsuccessful, we would try via the second channel mentioned, and so on. <br><br>\nIf delivery is not successful via any of the delivery methods, then an error response will be returned to the sender.<br><br>\n<b>DIGITAL</b> delivering it to the recipient's ePost letterbox (available for all types of documents/letters/messages)<br>\n<b>PHYSICAL</b> printing and sending the letter physically (only specific pdf formats are accepted)<br>\n<b>SMS</b> delivering the \"simple short message\" as a SMS to the recipient's mobile phone. (only for simple short message media type)<br>\n<b>EBILL</b> delivering it to the recipient's eBill (available for invoice document type with pdf format)<br>\n<b>EMAIL</b> delivering it to the recipient who using email<br>\n<b>AUTO</b> will try to find most suitable one from all available channel in order like this (<b>DIGITAL</b>, <b>SMS</b>, <b>EBILL</b>, <b>PHYSICAL</b>, <b>EMAIL</b>) then do the delivering",
@@ -3891,9 +5010,9 @@
             "type": "string"
           },
           "mediaType": {
-            "description": "Indicate the specific media type of the document. For sending a standard classic letter like a PDF leave this field empty. <br/>Acceptable values: <br/>\"application/vnd.ch.klara.epost.smartletter.v1+json\" for smart letter. Indicate that if this document file is a smart letter. <br/>\"application/vnd.ch.klara.epost.v1+simple_short_message\" for simple short message. To send simple short message, leave the document type empty. <br/>\"application/vnd.ch.klara.epost.v1+incamail\" Please use SecureSend instead of IncaMail. <br/>\"application/vnd.ch.klara.epost.v1+securesend\" for SecureSend. <br/>null for Physical delivery.",
+            "description": "Indicate the specific media type of the document. For sending a standard classic letter like a PDF leave this field empty. <br/>Acceptable values: <br/>\"application/vnd.ch.klara.epost.v1+simple_short_message\" for simple short message. To send simple short message, leave the document type empty. <br/>\"application/vnd.ch.klara.epost.v1+incamail\" Please use SecureSend instead of IncaMail. <br/>\"application/vnd.ch.klara.epost.v1+securesend\" for SecureSend. <br/>\"application/vnd.ch.klara.epost.v1+iletter\" for iLetter. An iLetter document carries no binary file; provide the reference in digitalAdditionalInfo.iLetter instead. <br/>null for Physical delivery.",
             "type": "string",
-            "example": "application/vnd.ch.klara.epost.smartletter.v1+json"
+            "example": "application/vnd.ch.klara.epost.v1+iletter"
           },
           "deliveryChannelPreferences": {
             "description": "This value defines your preference & priority among delivery channels. It defines that your letter/message/document should be delivered via which one of the available channels. You can input more than one delivery channel. <br><br>\nThe order of delivery channels defines the priority of each channel. Meaning, at first we try to deliver via the first mentioned delivery channel, if it's unsuccessful, we would try via the second channel mentioned, and so on. <br><br>\nIf delivery is not successful via any of the delivery methods, then an error response will be returned to the sender.<br><br>\n<b>DIGITAL</b> delivering it to the recipient's ePost letterbox (available for all types of documents/letters/messages)<br>\n<b>PHYSICAL</b> printing and sending the letter physically (only specific pdf formats are accepted)<br>\n<b>SMS</b> delivering the \"simple short message\" as a SMS to the recipient's mobile phone. (only for simple short message media type)<br>\n<b>EBILL</b> delivering it to the recipient's eBill (available for invoice document type with pdf format)<br>\n<b>EMAIL</b> delivering it to the recipient who using email<br>\n<b>AUTO</b> will try to find most suitable one from all available channel in order like this (<b>DIGITAL</b>, <b>SMS</b>, <b>EBILL</b>, <b>PHYSICAL</b>, <b>EMAIL</b>) then do the delivering",
@@ -4152,6 +5271,38 @@
           }
         }
       },
+      "EffectiveILetterParameter": {
+        "description": "One iLetter parameter key-value pair as it was actually used for a recipient.",
+        "type": "object",
+        "properties": {
+          "key": {
+            "description": "The parameter key.",
+            "type": "string",
+            "example": "claimId"
+          },
+          "value": {
+            "description": "The value used for this key for this recipient.",
+            "type": "string",
+            "example": "CLM-2026-0042"
+          }
+        }
+      },
+      "EffectiveILetterPlaceholder": {
+        "description": "One iLetter placeholder key-value pair as it was supplied for a recipient.",
+        "type": "object",
+        "properties": {
+          "key": {
+            "description": "The placeholder key.",
+            "type": "string",
+            "example": "claimNumber"
+          },
+          "value": {
+            "description": "The value supplied for this placeholder for this recipient.",
+            "type": "string",
+            "example": "CLM-2026-000471"
+          }
+        }
+      },
       "EmailAdditionalInfo": {
         "description": "Group of the email delivery information.",
         "type": "object",
@@ -4303,17 +5454,86 @@
         "type": "string"
       },
       "ILetter": {
-        "description": "iLetter reference parameters supplied per file under digitalAdditionalInfo when the file is an iLetter document.",
+        "description": "iLetter reference parameters supplied per file under digitalAdditionalInfo when the file is an iLetter document. Set mediaType to \"application/vnd.ch.klara.epost.v1+iletter\" and provide templateId to send an interactive iLetter created from that Template; such a document carries no file binary. On a document with any other mediaType this object has no effect: no iLetter is created or touched and the delivery is neither rejected nor altered.",
+        "required": [
+          "templateId"
+        ],
         "type": "object",
         "properties": {
           "templateId": {
-            "description": "Id of the iLetter Template used to create the iLetter to send. Applies only to iLetter documents; ignored on other document types.",
+            "description": "Id of the iLetter Template used to create the iLetter to send. Required for every iLetter document sent through this API. Applies only to iLetter documents; ignored on other document types.",
             "maxLength": 128,
             "type": "string"
           },
           "batchId": {
-            "description": "Optional correlation key grouping several deliveries onto one iLetter record.",
+            "description": "Optional correlation key grouping several deliveries onto one iLetter record: sending the same batchId again appends the new recipients to the existing iLetter instead of creating a new one. If omitted, this delivery always creates its own new iLetter, and a resend of a failed delivery updates that same iLetter rather than creating a second one.",
             "maxLength": 128,
+            "type": "string"
+          },
+          "confidentialResponses": {
+            "description": "Whether the iLetter collects confidential responses: answers are not shown to the sender together with who gave them. Defaults to not confidential when absent.",
+            "type": "boolean"
+          },
+          "responseDeadline": {
+            "description": "Date and time by which recipients are asked to answer, as an ISO-8601 instant with UTC offset, for example 2026-10-31T21:59:59Z. Passed on exactly as supplied. Absent means no deadline.",
+            "type": "string"
+          },
+          "parameters": {
+            "description": "Default values for this document's iLetter URL parameters, appended to the letter's data-source calls; one entry per key, at most 20 entries. A recipient may override individual keys under recipients[].iLetter.parameters; per key the recipient's value applies when supplied, otherwise this document-level value. A recipient left without a value for a required key fails with ILETTER_PARAMETER_REQUIRED_VALUE_MISSING naming the key; a key the Template does not declare fails with ILETTER_PARAMETER_KEY_UNKNOWN.",
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ILetterParameter"
+            }
+          },
+          "placeholders": {
+            "description": "Values for the letter's text placeholders, substituted into the letter text; one entry per key, applied to every recipient of this document. A recipient may override individual keys under recipients[].iLetter.placeholders; per key the recipient's value applies when supplied, otherwise this value. At most 100 entries per level, values of at most 2000 characters; a document over these limits is rejected with ILETTER_PLACEHOLDER_LIMIT_EXCEEDED. A value for a key the letter does not define is ignored. Unlike a missing URL parameter, a recipient left without a value for a required placeholder does not reject the request: that recipient ends in a failed status with ILETTER_PLACEHOLDER_REQUIRED_VALUE_MISSING naming the key, and the other recipients are delivered.",
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ILetterPlaceholder"
+            }
+          }
+        }
+      },
+      "ILetterParameter": {
+        "description": "One key-value pair supplied for an iLetter's REST data source parameters.",
+        "required": [
+          "key"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "description": "Must match a SENDER_PARAMETER key declared on the iLetter's data sources. At most 64 characters; starts with a letter or underscore, followed by letters, digits, underscores or hyphens.",
+            "maxLength": 64,
+            "pattern": "\\S",
+            "type": "string",
+            "nullable": false
+          },
+          "value": {
+            "description": "The value substituted for this key when the recipient's iLetter resolves the data source. At most 128 characters.",
+            "maxLength": 128,
+            "type": "string"
+          }
+        }
+      },
+      "ILetterPlaceholder": {
+        "description": "One value for a text placeholder defined on the iLetter.",
+        "required": [
+          "key"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "description": "Key of a placeholder defined on the letter. At most 64 characters; starts with a letter or underscore, followed by letters, digits, underscores or hyphens. A key the letter does not define is ignored.",
+            "maxLength": 64,
+            "pattern": "\\S",
+            "type": "string",
+            "nullable": false
+          },
+          "value": {
+            "description": "Text shown to the recipient in place of the placeholder. Any characters, including line breaks; at most 2000 characters.",
+            "maxLength": 2000,
             "type": "string"
           }
         }
@@ -4361,6 +5581,16 @@
               },
               {
                 "description": "Unhashed credential for identity matching process."
+              }
+            ]
+          },
+          "iLetter": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ILetter"
+              },
+              {
+                "description": "Only parameters and placeholders are considered here: each overrides, per key, the document-level digitalAdditionalInfo.iLetter value of the same name for this one recipient."
               }
             ]
           },
@@ -4541,6 +5771,20 @@
         "type": "object",
         "properties": {
           "href": {
+            "type": "string"
+          }
+        }
+      },
+      "LocalizedDocumentInfo": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "description": "Title shown to a recipient whose letterbox language matches this entry's key.",
+            "type": "string",
+            "example": "Ihr Schadenfall"
+          },
+          "description": {
+            "description": "Description shown to a recipient whose letterbox language matches this entry's key.",
             "type": "string"
           }
         }
@@ -4728,6 +5972,326 @@
                 "description": "metadata"
               }
             ]
+          }
+        }
+      },
+      "ParticipantStatus": {
+        "type": "object",
+        "properties": {
+          "internalTrackingId": {
+            "format": "uuid",
+            "description": "Process-local participant id. Stable, also while the participant is unresolved. Use this to address the participant on <code>PATCH</code>.",
+            "type": "string",
+            "example": "b4a9b3f1-c8d0-4e2a-b5f6-b7c8d9e0a1b2"
+          },
+          "participantId": {
+            "description": "Internal ePost id of the resolved tenant. <code>null</code> while the participant cannot be resolved (e.g. forced onboarding pending, address-only credential).",
+            "type": "string",
+            "example": "c60d31fa-f335-4957-872a-90b035632081",
+            "nullable": true
+          },
+          "name": {
+            "description": "Name as used within the signing process / signature itself. <code>null</code> while unresolved. Per CISO, no additional profile data from ePost is exposed here.",
+            "type": "string",
+            "example": "Anna Muster",
+            "nullable": true
+          },
+          "roles": {
+            "description": "Role(s) held by this participant within the process.",
+            "type": "array",
+            "items": {
+              "enum": [
+                "ADMIN",
+                "SIGNER",
+                "RECEIVER"
+              ],
+              "type": "string"
+            },
+            "example": [
+              "SIGNER",
+              "RECEIVER"
+            ]
+          },
+          "status": {
+            "description": "Current signing status of this participant.",
+            "enum": [
+              "PENDING",
+              "FORCED_ONBOARDING",
+              "SIGNED",
+              "REJECTED",
+              "EXPIRED",
+              "REMOVED",
+              "NOT_REQUIRED",
+              "FULFILLED_BY_OTHER"
+            ],
+            "type": "object",
+            "example": "PENDING"
+          },
+          "deliveryStatus": {
+            "description": "Delivery progress of the initial document to this participant, independent of the signing <code>status</code> above.",
+            "enum": [
+              "PENDING",
+              "DELIVERED",
+              "ONBOARDING_SENT",
+              "NOT_DELIVERED",
+              "FAILED"
+            ],
+            "type": "object",
+            "example": "DELIVERED",
+            "nullable": true
+          },
+          "hashedPrimaryValue": {
+            "description": "Correlates the returned participant with the hash the caller submitted.",
+            "type": "string",
+            "example": "5f4dcc3b5aa765d61d8327deb882cf99",
+            "nullable": true
+          },
+          "signedByUserEmail": {
+            "description": "Email of the ePost account in whose name the signature was made (account owner). <code>null</code> before signing.",
+            "type": "string",
+            "example": "anna.muster@example.ch",
+            "nullable": true
+          },
+          "effectiveSignerUserEmail": {
+            "description": "Email of the user who actually signed (e.g. a shared-account user). <code>null</code> before signing.",
+            "type": "string",
+            "example": "delegate@example.ch",
+            "nullable": true
+          },
+          "sequenceIndex": {
+            "format": "int32",
+            "description": "1-based order (<code>SEQUENTIAL</code> mode). <code>null</code> in <code>PARALLEL</code> mode.",
+            "type": "integer",
+            "example": 1,
+            "nullable": true
+          },
+          "rejectedReason": {
+            "description": "Reason provided when the participant refused to sign. <code>null</code> otherwise.",
+            "type": "string",
+            "example": "Wrong recipient",
+            "nullable": true
+          },
+          "signedAt": {
+            "format": "date-time",
+            "description": "Timestamp at which the participant signed (ISO 8601). <code>null</code> before signing.",
+            "type": "string",
+            "example": "2026-09-01T14:22:07Z",
+            "nullable": true
+          },
+          "occupied": {
+            "description": "Whether the signing room is currently held (locked) by this participant.",
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "ParticipantUpdate": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "description": "New role set. Must be non-empty when supplied. The process must retain at least one <code>ADMIN</code> and at least one <code>SIGNER</code>; removing the last <code>ADMIN</code> results in HTTP 409.",
+            "type": "array",
+            "items": {
+              "enum": [
+                "ADMIN",
+                "SIGNER",
+                "RECEIVER"
+              ],
+              "type": "string"
+            },
+            "example": [
+              "SIGNER",
+              "RECEIVER"
+            ]
+          },
+          "hashedPrimaryCredential": {
+            "description": "Which credential is hashed as the primary key (e.g. <code>email</code>, <code>mobileNumber</code>). Omit to keep the current value.",
+            "type": "string",
+            "example": "email"
+          },
+          "hashedPrimaryValue": {
+            "description": "Hash of the primary credential value. Omit to keep the current value.",
+            "type": "string",
+            "example": "5f4dcc3b5aa765d61d8327deb882cf99"
+          },
+          "derivedHashedCredentials": {
+            "description": "Names of the additional credentials mixed into the derived hash. Omit to keep the current value.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "birthDate"
+            ]
+          },
+          "derivedHashedValue": {
+            "description": "Hash of the derived credential combination. Omit to keep the current value.",
+            "type": "string",
+            "example": "b4a9b3f1c8d0e2a5f6b7c8d9e0a1b2c3"
+          },
+          "unhashedCredentials": {
+            "description": "Full participant credentials &mdash; submission only. Never returned by <code>GET</code> endpoints. Omit to keep the current value.",
+            "type": "object",
+            "properties": {
+              "universalName": {
+                "description": "If you are not sure whether the recipient is a company or a person, then this field can be used to put the name of the recipient",
+                "type": "string",
+                "example": "KLARA Business AG / Peter Muster"
+              },
+              "firstName": {
+                "description": "First name of a recipient.",
+                "type": "string",
+                "example": "Peter"
+              },
+              "lastName": {
+                "description": "Last name of a recipient.",
+                "type": "string",
+                "example": "Muster"
+              },
+              "companyName": {
+                "description": "If the tenant entry is a business customer, i.e a Company, enter the company name here.",
+                "type": "string",
+                "example": "KLARA"
+              },
+              "companyUid": {
+                "description": "If the tenant entry is a business customer, i.e a Company, enter the company UID here.<br/>In case you are inputting the company UID for delivery via eBill channel to a company recipient, pay attention to not input any value for the billRecipientId. Otherwise, delivery is only possible if both values are correct for the recipient of eBill.",
+                "type": "string",
+                "example": "CHE-123.456.789"
+              },
+              "street": {
+                "description": "Street name in the address of a recipient.<br/>As an option, street name and street number can be added here together in this field. In that case, leave the \"streetNumber\" field empty.",
+                "type": "string",
+                "example": "Bahnhofstrasse 10a"
+              },
+              "streetNumber": {
+                "description": "Street number in the address of a recipient.",
+                "type": "string",
+                "example": "20"
+              },
+              "zipCode": {
+                "description": "Zip code in the address of a recipient.",
+                "type": "string",
+                "example": "3000"
+              },
+              "city": {
+                "description": "City in the address of a recipient.",
+                "type": "string",
+                "example": "Bern"
+              },
+              "email": {
+                "description": "Email of a recipient.<br/>In case you are inputting the email of the recipient for delivery via eBill channel, pay attention to not input any value for the billRecipientId. Otherwise, delivery is only possible if both values are correct for the recipient of eBill.",
+                "type": "string",
+                "example": "peter.muster@gmail.com"
+              },
+              "mobileNumber": {
+                "description": "Mobile number of the recipient.<br/>Must be a valid international phone number: Beginning with a '+' sign followed by a 1-3 digit country code and the domestic phone number.",
+                "type": "string",
+                "example": " +41909112233"
+              },
+              "birthDate": {
+                "format": "date",
+                "description": "Birth date of a recipient in ISO 8601 format (yyyy-mm-dd)",
+                "type": "string",
+                "example": "1990-01-02"
+              },
+              "participantId": {
+                "description": "This field is result of identity matching process, if value is entered in request then it will have highest priority for matching search process.",
+                "type": "string"
+              },
+              "clientLegacyId": {
+                "description": "This id is optional and is used to support legacy systems.",
+                "type": "string"
+              },
+              "minimumLevelOfTrust": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/LevelOfTrust"
+                  },
+                  {
+                    "description": "The Levels of Trust (LoT) define how strong a user is verified in the KLARA ecosystem. Three possible level of trust: BRONZE, SILVER, GOLD."
+                  }
+                ]
+              },
+              "socialSecurityNumber": {
+                "description": "Social security number of a recipient and must be unique.",
+                "type": "string",
+                "example": "756.1234.5678.97"
+              },
+              "taxId": {
+                "description": "Tax ID of a recipient and must be unique.",
+                "type": "string",
+                "example": "263125"
+              },
+              "postOfficeBoxNumber": {
+                "description": "Post office box number",
+                "type": "string",
+                "example": "12"
+              },
+              "postOfficeBoxZip": {
+                "description": "Post office box zipcode",
+                "type": "string",
+                "example": "1212"
+              },
+              "postOfficeBoxTownName": {
+                "description": "Post office box town name",
+                "type": "string",
+                "example": "Vervey 1"
+              },
+              "unstructuredAddressLine01": {
+                "description": "If you are not sure which part of the address is name, street, house number, city or postcode, then you can input your address in the unstructured line 1 to 3. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+                "type": "string",
+                "example": "Peter Muster"
+              },
+              "unstructuredAddressLine02": {
+                "description": "If you are not sure which part of the address is name, street, house number, city or postcode, then you can input your address in the unstructured line 1 to 3. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+                "type": "string",
+                "example": "Bahnhofsstr 20"
+              },
+              "unstructuredAddressLine03": {
+                "description": "If your unstructured address has more than 3 lines, input all the remaining in this line. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+                "type": "string",
+                "example": "8004 Zurich Switzerland"
+              },
+              "billRecipientId": {
+                "description": "Bill recipient Id from eBill. Using in eBill channel only.<br/>In order to deliver via eBill channel, you can input this credential. If you input more than 1 credential for eBill, delivery can happen only if all of these credentials are found in the recipient of eBill by SIX.",
+                "type": "string",
+                "example": "41010560425610173"
+              }
+            }
+          },
+          "allCredentialShouldMatch": {
+            "description": "If <code>true</code>, every supplied credential MUST match to resolve the participant. Omit to keep the current value.",
+            "type": "boolean",
+            "example": false
+          },
+          "sequenceIndex": {
+            "format": "int32",
+            "description": "1-based order of this participant when the process runs in <code>SEQUENTIAL</code> mode. Ignored in <code>PARALLEL</code> mode. Omit to keep the current value.",
+            "minimum": 1,
+            "type": "integer",
+            "example": 1
+          },
+          "signatureFields": {
+            "description": "Signature field positions for this participant. When supplied, replaces the current fields as a whole; empty list = SwissSign default placement. Omit to keep the current value.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SignatureField"
+            }
+          },
+          "status": {
+            "description": "Only <code>REMOVED</code> is accepted &mdash; removes the participant from the process. Any other value results in HTTP 400. Only reachable while the participant is <code>PENDING</code> or <code>FORCED_ONBOARDING</code>.",
+            "enum": [
+              "PENDING",
+              "FORCED_ONBOARDING",
+              "SIGNED",
+              "REJECTED",
+              "EXPIRED",
+              "REMOVED",
+              "NOT_REQUIRED",
+              "FULFILLED_BY_OTHER"
+            ],
+            "type": "object",
+            "example": "REMOVED"
           }
         }
       },
@@ -5417,6 +6981,16 @@
                 "description": "Unhashed credential for identity matching process."
               }
             ]
+          },
+          "iLetter": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ILetter"
+              },
+              {
+                "description": "Only parameters and placeholders are considered here: each overrides, per key, the document-level digitalAdditionalInfo.iLetter value of the same name for this one recipient."
+              }
+            ]
           }
         }
       },
@@ -5509,6 +7083,47 @@
             "items": {
               "$ref": "#/components/schemas/BusinessStatusHistory"
             }
+          },
+          "effectiveILetterParameters": {
+            "description": "The iLetter parameter key-value pairs actually used for this recipient: the recipient's own override where the sender supplied one, the document's value otherwise. Absent when the delivery carried no iLetter parameters.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EffectiveILetterParameter"
+            }
+          },
+          "effectiveILetterPlaceholders": {
+            "description": "The iLetter placeholder key-value pairs supplied for this recipient: the recipient's own value where the sender supplied one, the document's value otherwise. Absent when the delivery carried no iLetter placeholders.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EffectiveILetterPlaceholder"
+            }
+          }
+        }
+      },
+      "ResponseFileGoneResponse": {
+        "description": "Metadata of a Response File whose content is no longer available",
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "description": "Original file name",
+            "type": "string",
+            "example": "id-card.pdf"
+          },
+          "mimeType": {
+            "description": "MIME type of the file",
+            "type": "string",
+            "example": "application/pdf"
+          },
+          "size": {
+            "format": "int64",
+            "description": "Size of the file in bytes",
+            "type": "integer",
+            "example": 2048
+          },
+          "removedAt": {
+            "description": "When the content was removed (ISO 8601 UTC). Before the daily clean-up has run, this is the expiry time.",
+            "type": "string",
+            "example": "2026-12-12T08:00:00Z"
           }
         }
       },
@@ -5543,6 +7158,47 @@
           }
         }
       },
+      "SignatureField": {
+        "type": "object",
+        "properties": {
+          "fieldName": {
+            "description": "Logical name of the signature field on the PDF form (matches the AcroForm field name when present).",
+            "type": "string",
+            "example": "SignatureField_1"
+          },
+          "pageIndex": {
+            "format": "int32",
+            "description": "Zero-based index of the PDF page the field is placed on.",
+            "minimum": 0,
+            "type": "integer",
+            "example": 0
+          },
+          "x": {
+            "format": "double",
+            "description": "X coordinate of the field's lower-left corner (PDF points).",
+            "type": "number",
+            "example": 72
+          },
+          "y": {
+            "format": "double",
+            "description": "Y coordinate of the field's lower-left corner (PDF points).",
+            "type": "number",
+            "example": 144
+          },
+          "width": {
+            "format": "double",
+            "description": "Width of the field (PDF points).",
+            "type": "number",
+            "example": 180
+          },
+          "height": {
+            "format": "double",
+            "description": "Height of the field (PDF points).",
+            "type": "number",
+            "example": 48
+          }
+        }
+      },
       "SignatureType": {
         "description": "Document Signature Type",
         "enum": [
@@ -5551,6 +7207,700 @@
           "QES"
         ],
         "type": "string"
+      },
+      "SigningProcess": {
+        "type": "object",
+        "properties": {
+          "processId": {
+            "format": "uuid",
+            "description": "Unique identifier of the signing process.",
+            "type": "string",
+            "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+          },
+          "title": {
+            "description": "Title of the signing request.",
+            "type": "string",
+            "example": "Rental contract Bahnhofstrasse 12"
+          },
+          "description": {
+            "description": "Optional description.",
+            "type": "string",
+            "example": "Please sign by the end of the month.",
+            "nullable": true
+          },
+          "submittedBy": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ActorRef"
+              },
+              {
+                "description": "Who the signing request came from."
+              }
+            ]
+          },
+          "signatureType": {
+            "description": "Chosen signature type. Locked at creation.",
+            "enum": [
+              "SES",
+              "AES",
+              "QES"
+            ],
+            "type": "object",
+            "example": "SES"
+          },
+          "mode": {
+            "description": "Signing order strategy. Locked at creation.",
+            "enum": [
+              "PARALLEL",
+              "SEQUENTIAL"
+            ],
+            "type": "object",
+            "example": "PARALLEL"
+          },
+          "deadline": {
+            "format": "date",
+            "description": "Signing deadline (ISO 8601).",
+            "type": "string",
+            "example": "2026-12-31"
+          },
+          "documentHandling": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DocumentHandling"
+              },
+              {
+                "description": "Restrictions applied to the document during the process."
+              }
+            ]
+          },
+          "forceOnboarding": {
+            "description": "Whether forced onboarding was requested for unresolved email participants.",
+            "type": "boolean",
+            "example": true
+          },
+          "status": {
+            "description": "Current lifecycle status.",
+            "enum": [
+              "CREATED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "EXPIRED",
+              "CANCELLED"
+            ],
+            "type": "object",
+            "example": "IN_PROGRESS"
+          },
+          "deliveryState": {
+            "description": "Delivery/orchestration state of the process side effects (independent of <code>status</code>). Non-terminal values are retryable via <code>POST /signing/processes/{processId}/retry-delivery</code>.",
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "PARTIAL",
+              "COMPLETE",
+              "FAILED"
+            ],
+            "type": "object",
+            "example": "PARTIAL"
+          },
+          "signedCount": {
+            "format": "int32",
+            "description": "Number of participants that have already signed.",
+            "type": "integer",
+            "example": 1
+          },
+          "pendingCount": {
+            "format": "int32",
+            "description": "Number of participants still outstanding (<code>PENDING</code> / <code>FORCED_ONBOARDING</code>).",
+            "type": "integer",
+            "example": 2
+          },
+          "participants": {
+            "description": "Participants with their current signing status.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "internalTrackingId": {
+                  "format": "uuid",
+                  "description": "Process-local participant id. Stable, also while the participant is unresolved. Use this to address the participant on <code>PATCH</code>.",
+                  "type": "string",
+                  "example": "b4a9b3f1-c8d0-4e2a-b5f6-b7c8d9e0a1b2"
+                },
+                "participantId": {
+                  "description": "Internal ePost id of the resolved tenant. <code>null</code> while the participant cannot be resolved (e.g. forced onboarding pending, address-only credential).",
+                  "type": "string",
+                  "example": "c60d31fa-f335-4957-872a-90b035632081",
+                  "nullable": true
+                },
+                "name": {
+                  "description": "Name as used within the signing process / signature itself. <code>null</code> while unresolved. Per CISO, no additional profile data from ePost is exposed here.",
+                  "type": "string",
+                  "example": "Anna Muster",
+                  "nullable": true
+                },
+                "roles": {
+                  "description": "Role(s) held by this participant within the process.",
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "ADMIN",
+                      "SIGNER",
+                      "RECEIVER"
+                    ],
+                    "type": "string"
+                  },
+                  "example": [
+                    "SIGNER",
+                    "RECEIVER"
+                  ]
+                },
+                "status": {
+                  "description": "Current signing status of this participant.",
+                  "enum": [
+                    "PENDING",
+                    "FORCED_ONBOARDING",
+                    "SIGNED",
+                    "REJECTED",
+                    "EXPIRED",
+                    "REMOVED",
+                    "NOT_REQUIRED",
+                    "FULFILLED_BY_OTHER"
+                  ],
+                  "type": "object",
+                  "example": "PENDING"
+                },
+                "deliveryStatus": {
+                  "description": "Delivery progress of the initial document to this participant, independent of the signing <code>status</code> above.",
+                  "enum": [
+                    "PENDING",
+                    "DELIVERED",
+                    "ONBOARDING_SENT",
+                    "NOT_DELIVERED",
+                    "FAILED"
+                  ],
+                  "type": "object",
+                  "example": "DELIVERED",
+                  "nullable": true
+                },
+                "hashedPrimaryValue": {
+                  "description": "Correlates the returned participant with the hash the caller submitted.",
+                  "type": "string",
+                  "example": "5f4dcc3b5aa765d61d8327deb882cf99",
+                  "nullable": true
+                },
+                "signedByUserEmail": {
+                  "description": "Email of the ePost account in whose name the signature was made (account owner). <code>null</code> before signing.",
+                  "type": "string",
+                  "example": "anna.muster@example.ch",
+                  "nullable": true
+                },
+                "effectiveSignerUserEmail": {
+                  "description": "Email of the user who actually signed (e.g. a shared-account user). <code>null</code> before signing.",
+                  "type": "string",
+                  "example": "delegate@example.ch",
+                  "nullable": true
+                },
+                "sequenceIndex": {
+                  "format": "int32",
+                  "description": "1-based order (<code>SEQUENTIAL</code> mode). <code>null</code> in <code>PARALLEL</code> mode.",
+                  "type": "integer",
+                  "example": 1,
+                  "nullable": true
+                },
+                "rejectedReason": {
+                  "description": "Reason provided when the participant refused to sign. <code>null</code> otherwise.",
+                  "type": "string",
+                  "example": "Wrong recipient",
+                  "nullable": true
+                },
+                "signedAt": {
+                  "format": "date-time",
+                  "description": "Timestamp at which the participant signed (ISO 8601). <code>null</code> before signing.",
+                  "type": "string",
+                  "example": "2026-09-01T14:22:07Z",
+                  "nullable": true
+                },
+                "occupied": {
+                  "description": "Whether the signing room is currently held (locked) by this participant.",
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            }
+          },
+          "document": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DocumentInfo"
+              },
+              {
+                "description": "Metadata of the submitted document (never the payload)."
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "description": "Creation timestamp (ISO 8601).",
+            "type": "string",
+            "example": "2026-08-13T09:15:30Z"
+          },
+          "completedAt": {
+            "format": "date-time",
+            "description": "Timestamp at which every required signature was collected. <code>null</code> while incomplete.",
+            "type": "string",
+            "example": "2026-09-05T11:03:19Z",
+            "nullable": true
+          },
+          "deleteAt": {
+            "format": "date-time",
+            "description": "When the process/document will be finally deleted. Retention per CISO: open + signed documents 90 days; cancelled/deactivated processes 30 days; audit/process metadata 12 months.",
+            "type": "string",
+            "example": "2026-12-04T09:15:30Z",
+            "nullable": true
+          }
+        }
+      },
+      "SigningProcessCreated": {
+        "type": "object",
+        "properties": {
+          "processId": {
+            "format": "uuid",
+            "description": "Server-assigned unique identifier of the signing process.",
+            "type": "string",
+            "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+          },
+          "status": {
+            "description": "Initial lifecycle status of the process.",
+            "enum": [
+              "CREATED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "EXPIRED",
+              "CANCELLED"
+            ],
+            "type": "object",
+            "example": "CREATED"
+          }
+        }
+      },
+      "SigningProcessListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Page of signing processes belonging to the calling tenant.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "processId": {
+                  "format": "uuid",
+                  "description": "Unique identifier of the signing process.",
+                  "type": "string",
+                  "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+                },
+                "submittedBy": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ActorRef"
+                    },
+                    {
+                      "description": "Who the signing request came from (creator)."
+                    }
+                  ]
+                },
+                "title": {
+                  "description": "Title of the signing request.",
+                  "type": "string",
+                  "example": "Rental contract Bahnhofstrasse 12"
+                },
+                "description": {
+                  "description": "Optional description.",
+                  "type": "string",
+                  "example": "Please sign by the end of the month.",
+                  "nullable": true
+                },
+                "status": {
+                  "description": "Current lifecycle status.",
+                  "enum": [
+                    "CREATED",
+                    "IN_PROGRESS",
+                    "COMPLETED",
+                    "EXPIRED",
+                    "CANCELLED"
+                  ],
+                  "type": "object",
+                  "example": "IN_PROGRESS"
+                },
+                "deadline": {
+                  "format": "date",
+                  "description": "Signing deadline (ISO 8601).",
+                  "type": "string",
+                  "example": "2026-12-31"
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "description": "Creation timestamp (ISO 8601).",
+                  "type": "string",
+                  "example": "2026-08-13T09:15:30Z"
+                }
+              }
+            }
+          },
+          "total": {
+            "format": "int64",
+            "description": "Total number of signing processes matching the filter, across all pages.",
+            "type": "integer",
+            "example": 137
+          }
+        }
+      },
+      "SigningProcessMultipartForm": {
+        "description": "Multipart body for <code>POST /signing/processes</code>: exactly one PDF plus a <code>SigningProcessCreateRequest</code> metadata JSON.",
+        "type": "object",
+        "properties": {
+          "file": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BinaryFileV2"
+              },
+              {
+                "description": "The single PDF to be signed. Provided as a multipart binary part named <code>file</code>."
+              }
+            ]
+          },
+          "metadata": {
+            "description": "The <code>SigningProcessCreateRequest</code> metadata JSON — see the field-by-field guide in the operation description.",
+            "required": [
+              "title",
+              "signatureType",
+              "participants",
+              "deadline",
+              "forceOnboarding"
+            ],
+            "type": "object",
+            "properties": {
+              "title": {
+                "description": "Title of the signing request. Shown to participants in the signing room and in the process list.",
+                "maxLength": 255,
+                "pattern": "\\S",
+                "type": "string",
+                "example": "Rental contract Bahnhofstrasse 12",
+                "nullable": false
+              },
+              "description": {
+                "description": "Optional free-form description shown next to the title.",
+                "maxLength": 2000,
+                "type": "string",
+                "example": "Please sign by the end of the month."
+              },
+              "signatureType": {
+                "description": "SwissSign signature type. Locked once the process is created.",
+                "enum": [
+                  "SES",
+                  "AES",
+                  "QES"
+                ],
+                "type": "object",
+                "example": "SES",
+                "nullable": false
+              },
+              "participants": {
+                "description": "Participants of the process. Must contain at least one <code>ADMIN</code> (the creator) and at least one <code>SIGNER</code>.",
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "required": [
+                    "roles"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "description": "One or more roles the participant holds in this process. Must contain at least one role. Every process must contain at least one <code>ADMIN</code> and at least one <code>SIGNER</code>.",
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "ADMIN",
+                          "SIGNER",
+                          "RECEIVER"
+                        ],
+                        "type": "string"
+                      },
+                      "example": [
+                        "ADMIN",
+                        "SIGNER"
+                      ]
+                    },
+                    "senderUserId": {
+                      "description": "Optional sender-user reference forwarded to the signing room and to the audit log.",
+                      "type": "string",
+                      "example": "user-42"
+                    },
+                    "hashedPrimaryCredential": {
+                      "description": "Which credential is hashed as the primary key (e.g. <code>email</code>, <code>mobileNumber</code>).",
+                      "type": "string",
+                      "example": "email"
+                    },
+                    "hashedPrimaryValue": {
+                      "description": "Hash of the primary credential value. Used for privacy-preserving matching.",
+                      "type": "string",
+                      "example": "5f4dcc3b5aa765d61d8327deb882cf99"
+                    },
+                    "derivedHashedCredentials": {
+                      "description": "Names of the additional credentials mixed into the derived hash (e.g. <code>[\"birthDate\"]</code>).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "birthDate"
+                      ]
+                    },
+                    "derivedHashedValue": {
+                      "description": "Hash of the derived credential combination.",
+                      "type": "string",
+                      "example": "b4a9b3f1c8d0e2a5f6b7c8d9e0a1b2c3"
+                    },
+                    "unhashedCredentials": {
+                      "description": "Full participant credentials — submission only. Never returned by <code>GET</code> endpoints. Reuses the shared <code>UnhashedCredential</code> DTO used elsewhere in the public API (e.g. ePost deliveries).",
+                      "type": "object",
+                      "properties": {
+                        "universalName": {
+                          "description": "If you are not sure whether the recipient is a company or a person, then this field can be used to put the name of the recipient",
+                          "type": "string",
+                          "example": "KLARA Business AG / Peter Muster"
+                        },
+                        "firstName": {
+                          "description": "First name of a recipient.",
+                          "type": "string",
+                          "example": "Peter"
+                        },
+                        "lastName": {
+                          "description": "Last name of a recipient.",
+                          "type": "string",
+                          "example": "Muster"
+                        },
+                        "companyName": {
+                          "description": "If the tenant entry is a business customer, i.e a Company, enter the company name here.",
+                          "type": "string",
+                          "example": "KLARA"
+                        },
+                        "companyUid": {
+                          "description": "If the tenant entry is a business customer, i.e a Company, enter the company UID here.<br/>In case you are inputting the company UID for delivery via eBill channel to a company recipient, pay attention to not input any value for the billRecipientId. Otherwise, delivery is only possible if both values are correct for the recipient of eBill.",
+                          "type": "string",
+                          "example": "CHE-123.456.789"
+                        },
+                        "street": {
+                          "description": "Street name in the address of a recipient.<br/>As an option, street name and street number can be added here together in this field. In that case, leave the \"streetNumber\" field empty.",
+                          "type": "string",
+                          "example": "Bahnhofstrasse 10a"
+                        },
+                        "streetNumber": {
+                          "description": "Street number in the address of a recipient.",
+                          "type": "string",
+                          "example": "20"
+                        },
+                        "zipCode": {
+                          "description": "Zip code in the address of a recipient.",
+                          "type": "string",
+                          "example": "3000"
+                        },
+                        "city": {
+                          "description": "City in the address of a recipient.",
+                          "type": "string",
+                          "example": "Bern"
+                        },
+                        "email": {
+                          "description": "Email of a recipient.<br/>In case you are inputting the email of the recipient for delivery via eBill channel, pay attention to not input any value for the billRecipientId. Otherwise, delivery is only possible if both values are correct for the recipient of eBill.",
+                          "type": "string",
+                          "example": "peter.muster@gmail.com"
+                        },
+                        "mobileNumber": {
+                          "description": "Mobile number of the recipient.<br/>Must be a valid international phone number: Beginning with a '+' sign followed by a 1-3 digit country code and the domestic phone number.",
+                          "type": "string",
+                          "example": " +41909112233"
+                        },
+                        "birthDate": {
+                          "format": "date",
+                          "description": "Birth date of a recipient in ISO 8601 format (yyyy-mm-dd)",
+                          "type": "string",
+                          "example": "1990-01-02"
+                        },
+                        "participantId": {
+                          "description": "This field is result of identity matching process, if value is entered in request then it will have highest priority for matching search process.",
+                          "type": "string"
+                        },
+                        "clientLegacyId": {
+                          "description": "This id is optional and is used to support legacy systems.",
+                          "type": "string"
+                        },
+                        "minimumLevelOfTrust": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/LevelOfTrust"
+                            },
+                            {
+                              "description": "The Levels of Trust (LoT) define how strong a user is verified in the KLARA ecosystem. Three possible level of trust: BRONZE, SILVER, GOLD."
+                            }
+                          ]
+                        },
+                        "socialSecurityNumber": {
+                          "description": "Social security number of a recipient and must be unique.",
+                          "type": "string",
+                          "example": "756.1234.5678.97"
+                        },
+                        "taxId": {
+                          "description": "Tax ID of a recipient and must be unique.",
+                          "type": "string",
+                          "example": "263125"
+                        },
+                        "postOfficeBoxNumber": {
+                          "description": "Post office box number",
+                          "type": "string",
+                          "example": "12"
+                        },
+                        "postOfficeBoxZip": {
+                          "description": "Post office box zipcode",
+                          "type": "string",
+                          "example": "1212"
+                        },
+                        "postOfficeBoxTownName": {
+                          "description": "Post office box town name",
+                          "type": "string",
+                          "example": "Vervey 1"
+                        },
+                        "unstructuredAddressLine01": {
+                          "description": "If you are not sure which part of the address is name, street, house number, city or postcode, then you can input your address in the unstructured line 1 to 3. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+                          "type": "string",
+                          "example": "Peter Muster"
+                        },
+                        "unstructuredAddressLine02": {
+                          "description": "If you are not sure which part of the address is name, street, house number, city or postcode, then you can input your address in the unstructured line 1 to 3. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+                          "type": "string",
+                          "example": "Bahnhofsstr 20"
+                        },
+                        "unstructuredAddressLine03": {
+                          "description": "If your unstructured address has more than 3 lines, input all the remaining in this line. Keep in mind that sending unstructured addresses will result to a lower matching rate",
+                          "type": "string",
+                          "example": "8004 Zurich Switzerland"
+                        },
+                        "billRecipientId": {
+                          "description": "Bill recipient Id from eBill. Using in eBill channel only.<br/>In order to deliver via eBill channel, you can input this credential. If you input more than 1 credential for eBill, delivery can happen only if all of these credentials are found in the recipient of eBill by SIX.",
+                          "type": "string",
+                          "example": "41010560425610173"
+                        }
+                      }
+                    },
+                    "allCredentialShouldMatch": {
+                      "description": "If <code>true</code>, every supplied credential MUST match to resolve the participant. If <code>false</code>, any one matching credential is sufficient. Defaults to <code>false</code>.",
+                      "default": "false",
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "sequenceIndex": {
+                      "format": "int32",
+                      "description": "1-based order of this participant when the process runs in <code>SEQUENTIAL</code> mode. Ignored in <code>PARALLEL</code> mode.",
+                      "minimum": 1,
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "signatureFields": {
+                      "description": "Optional signature field positions for this participant. Empty = SwissSign default placement.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SignatureField"
+                      }
+                    }
+                  }
+                }
+              },
+              "mode": {
+                "description": "Signing order strategy. Defaults to <code>PARALLEL</code>. Locked once the process is created.",
+                "default": "PARALLEL",
+                "enum": [
+                  "PARALLEL",
+                  "SEQUENTIAL"
+                ],
+                "type": "object",
+                "example": "PARALLEL"
+              },
+              "deadline": {
+                "format": "date",
+                "description": "Absolute date by which every required signature must have been collected (ISO 8601).",
+                "pattern": "\\S",
+                "type": "string",
+                "example": "2026-12-31",
+                "nullable": false
+              },
+              "documentHandling": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DocumentHandling"
+                  },
+                  {
+                    "description": "Restrictions applied to the document while the process is running."
+                  }
+                ]
+              },
+              "forceOnboarding": {
+                "description": "Whether to trigger a forced-onboarding email for participants that do not yet exist on ePost. Required. Only effective when the participant credential is an email address; ignored otherwise. Onboarded users can complete only <code>SES</code>.",
+                "type": "boolean",
+                "example": true,
+                "nullable": false
+              },
+              "billToCompanyTenantId": {
+                "description": "Optional company tenant id to bill this signing to (\"send for a company\"). The acting user must hold the <code>DOCUMENT_SIGN_BILLING</code> company role in the KLARA web client role system on the referenced company; otherwise the request is rejected with 403. Retrieve eligible companies via <code>GET /signing/billing-companies</code>. The acting user/tenant remains the sender; the company only takes over billing.",
+                "type": "string",
+                "example": "c60d31fa-f335-4957-872a-90b035632081"
+              }
+            }
+          }
+        }
+      },
+      "SigningProcessUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "description": "New title shown to participants in the signing room and in the process list. Omit to keep the current title.",
+            "maxLength": 255,
+            "type": "string",
+            "example": "Rental contract Bahnhofstrasse 12 (v2)"
+          },
+          "description": {
+            "description": "New free-form description. Omit to keep the current description; send an empty string to clear it.",
+            "maxLength": 2000,
+            "type": "string",
+            "example": "Please sign by the end of next week."
+          },
+          "deadline": {
+            "format": "date",
+            "description": "New absolute deadline (ISO 8601). Must be strictly in the future. Omit to keep the current deadline.",
+            "type": "string",
+            "example": "2027-01-31"
+          },
+          "documentHandling": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DocumentHandling"
+              },
+              {
+                "description": "New document-handling restrictions. Omit to keep the current values; when supplied, replaces the current values as a whole."
+              }
+            ]
+          },
+          "status": {
+            "description": "Only <code>CANCELLED</code> is accepted &mdash; deactivates the process (SwissSign <code>signaturesCancelProcessing</code>). Any other value results in HTTP 400.",
+            "enum": [
+              "CREATED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "EXPIRED",
+              "CANCELLED"
+            ],
+            "type": "object",
+            "example": "CANCELLED"
+          }
+        }
       },
       "SortStrategy": {
         "enum": [
@@ -5626,7 +7976,7 @@
         }
       },
       "UnhashedCredential": {
-        "description": "Unhashed credential for identity matching process.",
+        "description": "Full participant credentials — submission only. Never returned by <code>GET</code> endpoints. Reuses the shared <code>UnhashedCredential</code> DTO used elsewhere in the public API (e.g. ePost deliveries).",
         "type": "object",
         "properties": {
           "universalName": {

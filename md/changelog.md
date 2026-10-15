@@ -8,6 +8,20 @@ What changed and when. Changes that can break an existing integration are marked
 
 ### Preview builds
 
+#### Preview, sixth build · iLetter, ePost Sign, localised document titles
+
+New products and fields from the API release of 15 October 2026:
+
+- **New chapter: [iLetter](https://developer.klara.ch/epost-preview/#iletter).** How to send an interactive letter from a Template, supply URL parameters and placeholders per document and per recipient, and what the two calls look like that the platform makes to your endpoints.
+
+- **ePost Sign is now part of this documentation.** Submit a document for electronic signing and follow the signing process. See Signing in the reference.
+
+- **Download what a recipient sends back.** When a recipient answers an iLetter with a file, you can now fetch it.
+
+- **Document title and description per language.** Recipients see the title and description in their letterbox language when you provide one.
+
+- **Smart Letter is no longer listed as a media type.** Use iLetter instead.
+
 #### Preview, fifth build · Documented error bodies, server descriptions
 
 The endpoint set is unchanged, 34 operations. One change to the contract, from the KLARA release of 18 September that the ePost endpoints share:

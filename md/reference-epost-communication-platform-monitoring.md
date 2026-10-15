@@ -6,6 +6,8 @@
 
 Get monitoring data for the deliveries.
 
+- operationId: `listDeliveryMonitoringData`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |

@@ -133,7 +133,7 @@ You may send credentials hashed instead of in clear text. **It is not recommende
 
 ePost distinguishes private and company tenants. It affects what you can expect.
 
-- **Private recipients** are onboarded through the mobile app and cannot send, except when replying to a Smart eLetter.
+- **Private recipients** are onboarded through the mobile app and cannot send, except when replying to an iLetter.
 
 - **Company tenants** use the web interface at `app.epost.ch` and can send anything.
 

@@ -8,6 +8,8 @@ Standard identity matching process.
 
 Send metadata of your customers for matching them with ePost users. There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.
 
+- operationId: `createStandardMatchingRun`
+
 **Request body** (`application/json`, required)
 
 | Field | Type | Required | Notes |
@@ -26,6 +28,8 @@ Send metadata of your customers for matching them with ePost users. There is the
 ### GET /epost/v2/standard-matching-runs/processing/{matching-run-id}
 
 Checking matching process.
+
+- operationId: `getStandardMatchingRunProgress`
 
 **Parameters**
 
@@ -47,6 +51,8 @@ Checking matching process.
 
 Get all of matching results from matching run id.
 
+- operationId: `getStandardMatchingRunResult`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -67,6 +73,8 @@ Get all of matching results from matching run id.
 Identity matching process. Standard version just return the user's basic information.
 
 Send metadata of your customers for matching them with ePost users. The limit size of the metadata is 5 There is the possibility to hash the metadata before sending it. It isn't mandatory to send all data for identity matching, but the sent data has to be unique in it's combination.
+
+- operationId: `matchStandardRecipients`
 
 **Request body** (`application/json`, not marked required in the specification)
 

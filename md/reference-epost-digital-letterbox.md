@@ -6,6 +6,8 @@
 
 Get letters of current user.
 
+- operationId: `listLetters`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -39,6 +41,8 @@ Get letters of current user.
 
 Get deleted letters and its remaining days to be permanently deleted.
 
+- operationId: `listDeletedLetters`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -62,6 +66,8 @@ Get deleted letters and its remaining days to be permanently deleted.
 
 Get the inbox unread letters count of the current user.
 
+- operationId: `getInboxUnreadCount`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -82,6 +88,8 @@ Get the inbox unread letters count of the current user.
 ### POST /epost/v2/letters/read
 
 Update the READ/UNREAD status for selected letters. The default status is READ.
+
+- operationId: `updateLettersReadStatus`
 
 **Request body** (`application/json`, required)
 
@@ -105,6 +113,8 @@ Update the READ/UNREAD status for selected letters. The default status is READ.
 ### GET /epost/v2/letters/search
 
 Search for letters using keywords that can be found in the letter's title, sender's name, or content.
+
+- operationId: `searchLetters`
 
 **Parameters**
 
@@ -133,6 +143,8 @@ Delete letter
 
 Delete letter by letter id
 
+- operationId: `deleteLetter`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -152,6 +164,8 @@ Delete letter by letter id
 ### GET /epost/v2/letters/{letter-id}
 
 Get a letter of current user with given id.
+
+- operationId: `getLetter`
 
 **Parameters**
 
@@ -174,6 +188,8 @@ Get a letter of current user with given id.
 
 Accept a letter by id.
 
+- operationId: `acceptLetter`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -195,6 +211,8 @@ Archive a letter from Letterbox to the root or to a specific folder in Storage.
 
 If the letter is already archived and in the Storage, the exception will be thrown.
 
+- operationId: `archiveLetter`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -214,6 +232,8 @@ If the letter is already archived and in the Storage, the exception will be thro
 ### GET /epost/v2/letters/{letter-id}/content
 
 Get the content of a letter with given id.
+
+- operationId: `getLetterContent`
 
 **Parameters**
 
@@ -236,6 +256,8 @@ Get the content of a letter with given id.
 
 Reject a letter by id.
 
+- operationId: `rejectLetter`
+
 **Parameters**
 
 | Name | In | Required | Type | Description |
@@ -256,6 +278,8 @@ Reject a letter by id.
 Restore a letter being deleted from inbox by letter id.
 
 Recover letter by letter id
+
+- operationId: `restoreLetter`
 
 **Parameters**
 
@@ -278,6 +302,8 @@ Recover letter by letter id
 Get thumbnail of a letter with given id.
 
 Thumbnail is returned as an stream of bytes with JPEG image format. Default image size is 90x128 pixels.
+
+- operationId: `getLetterThumbnail`
 
 **Parameters**
 
