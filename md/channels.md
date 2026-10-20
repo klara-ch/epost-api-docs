@@ -33,7 +33,9 @@ Reminders, credit notes and notifications are possible but not enabled by defaul
 
 ### SMS
 
-A short message to a mobile number. One part carries 160 characters. Above that the message is split, and each part then carries 157 characters because the rest is needed for the join.
+A short message is not a PDF. Set `mediaType` to `application/vnd.ch.klara.epost.v1+simple_short_message` and put the text in `documentMessage`; the document carries no file. If the recipient is on ePost, the message arrives in the app with a push notification, otherwise as an ordinary SMS.
+
+One part carries 160 characters. Above that the message is split, and each part then carries 157 characters because the rest is needed for the join.
 
 | Length | Parts |
 |---|---|
@@ -59,7 +61,20 @@ Printed and posted through a print partner. Three rules decide whether this work
 
 **The address has to sit in the envelope window.** Either you move the address block in your templates, or you add a cover sheet, which is the cheaper route if you have many templates.
 
-Two window positions are in use and the address field sits in a different place for each. Both are shown, because mirroring one in your head is a good way to print an unusable batch.
+The physical channel is steered through `physicalAdditionalInfo` on the document. All fields are in the reference; these are the ones that change the result or the price.
+
+| Field | Values | What it does |
+|---|---|---|
+| `windowLocation` | `LEFT`, `RIGHT` | Which envelope window your template is laid out for. See the two address positions below |
+| `postage` | `A_POST`, `B_POST`, `B_POST_LARGEVOLUME`, `A_PLUS`, `REGISTERED` | Service level. Decides speed and price |
+| `envelopeSize` | `C4`, `C5`, `BOX`, `AUTO` | `AUTO` leaves the choice to the print partner |
+| `duplex` | boolean, default `false` | Print on both sides |
+| `shippingCountry` | ISO country code, default `CH` | Destination country |
+| `qrInvoicePageNumber` | integer | Which page carries the QR invoice slip |
+
+Use the [price preview](https://developer.klara.ch/epost-preview/#preview) to see what a combination costs before you send it.
+
+Two window positions are in use and the address field sits in a different place for each. You declare which one your template uses with `physicalAdditionalInfo.windowLocation`. Both are shown below, because mirroring one in your head is a good way to print an unusable batch.
 
 ##### Envelope with the window on the left
 
@@ -96,3 +111,17 @@ Three worked examples
 | Peter Muster P.O. Box 123 6340 Baar | `firstName: Peter` `lastName: Muster` `postOfficeBoxNumber: P.O. Box 123` `postOfficeBoxZip: 6340` `postOfficeBoxTownName: Baar` |
 | Peter Muster Neuhofstrasse 3a P.O. Box 6340 Baar | `universalName: Peter Muster` `postOfficeBoxNumber: P.O. Box` `postOfficeBoxZip: 6340` `postOfficeBoxTownName: Baar` `street: Neuhofstrasse` `streetNumber: 3 a` |
 | Peter Muster Muehlegasse 15, Bolligen P.O. Box 3000 Berne 8 | `firstName: Peter` `lastName: Muster` `postOfficeBoxNumber: P.O. Box` `postOfficeBoxZip: 3000` `postOfficeBoxTownName: Berne 8` `street: Muehlegasse` `streetNumber: 15` `city: Bolligen` |
+
+#### c/o addresses
+
+c/o addresses are supported in the physical channel only. The complete recipient information, including the c/o line, must appear identically in the PDF and in the delivery metadata.
+
+> **Warning: Never leave the c/o line out of the metadata**
+>
+> Without it, the platform may match the postal address against a digital letterbox and deliver the document digitally, to the resident rather than to your recipient. The address in the PDF would also differ from the address in the metadata, which is not allowed.
+
+Put the complete recipient name in `universalName`. Only where that is technically impossible, append the c/o information to `lastName`.
+
+| Address in the PDF | Preferred | Alternative |
+|---|---|---|
+| Anna Beispiel c/o Max Muster Musterstrasse 8 9999 Beispielstadt | `universalName: Anna Beispiel, c/o Max Muster` `street: Musterstrasse` `streetNumber: 8` `zipCode: 9999` `city: Beispielstadt` | `firstName: Anna` `lastName: Beispiel, c/o Max Muster` `street: Musterstrasse` `streetNumber: 8` `zipCode: 9999` `city: Beispielstadt` |

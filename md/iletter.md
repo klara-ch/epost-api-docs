@@ -16,7 +16,7 @@ An iLetter is an interactive letter. You design it once as a Template in Studio 
 
 2. **Mark the document as an iLetter.** Set `mediaType` to `application/vnd.ch.klara.epost.v1+iletter`. Such a document carries no file binary, the content comes from the Template. The `iLetter` object is considered only on a document with this media type. On any other document it has no effect, and the delivery is neither rejected nor altered.
 
-3. **Group deliveries if you want to.** Deliveries with the same `iLetter.batchId` add their recipients to one iLetter record in Studio. Without it, every delivery creates its own record.
+3. **Group deliveries if you want to.** Deliveries with the same `iLetter.batchId` add their recipients to one iLetter record in Studio. Without it, every delivery creates its own record. A `batchId` is at most 128 characters.
 
 4. **Supply the values the Template needs**, see below.
 
@@ -41,7 +41,7 @@ Both are lists of `{ "key": "…", "value": "…" }` entries and can be given at
 | Key length | at most 64 characters | at most 64 characters |
 | Value length | at most 128 characters | at most 2000 characters |
 
-Keys start with a letter or an underscore, followed by letters, digits, underscores or hyphens. A placeholder key the letter does not define is ignored.
+Keys start with a letter or an underscore, followed by letters, digits, underscores or hyphens. A placeholder key the letter does not define is ignored. An optional placeholder left without an effective value renders the fallback text from the Template, or an empty string when the Template defines none.
 
 #### When something is missing or wrong
 
@@ -116,6 +116,8 @@ The `metadata` part of the multipart request. The Template declares the URL para
 }
 ```
 
+`documentTitle` and `documentDescription` become the title and description of the iLetter record the platform creates from the Template. Each one you omit keeps the Template's own value. A delivery that joins an existing record through `batchId` leaves that record's title and description unchanged: the first delivery of a batch sets them.
+
 `documentInfoByLanguage` works for any digital document, not only iLetters: a recipient whose letterbox language has an entry sees that title and description instead of `documentTitle` and `documentDescription`.
 
 ### Checking the result
@@ -148,7 +150,27 @@ Header values are percent-encoded. A value that was blank on the delivery produc
 
 #### Your data-source endpoint
 
-Every data-source call carries the letter's URL parameters, so return only what they ask for: the recipient's own case, not the whole table. Plan for the traffic. Every recipient who opens the letter triggers a call, spread over the time recipients open their letters.
+Every data-source call carries the letter's URL parameters, so return only what they ask for: the recipient's own case, not the whole table.
+
+Plan for the traffic. A data source is called when a recipient's letter needs its data: on opening, again whenever an input a parameter is bound to changes, and in sequence for chained data sources. A send to 5000 recipients therefore means at least 5000 calls per data source, spread over the time recipients open and fill in their letters.
+
+> **Warning: A parameter value need not come from your delivery**
+>
+> In Studio a URL parameter can also take its value from what the recipient types or selects in the letter, or from what an earlier data source of the same letter returned. Your endpoint can therefore receive query values that never passed through your integration. Validate them.
+
+Limits of the call:
+
+- Your response must arrive within **5 seconds**.
+
+- At most **5 redirects** are followed. The credential is sent on the first request only, never on a redirect.
+
+- A response body over **1 MiB** fails the call.
+
+- One retry, after a pause of 250 to 750 ms, and only after a timeout, a network error, a 5xx, a 408, an unresolvable host or a 429 with a `Retry-After` of at most 1 second, and only if both attempts fit within 7 seconds. Any other answer is final.
+
+- A response that is not JSON is an error. A `200` with an empty result is a normal, empty state, not an error.
+
+While a call fails, the part of the letter that needs its data is blocked for that recipient. After a timeout, a 5xx or a 429 the recipient can retry; after a 401, 403, 404, 405, 400 or 422 the recipient is told to contact you. Your error status therefore decides what the recipient sees.
 
 ```
 GET /claims/options?customerNumber=K-88422 HTTP/1.1
@@ -162,13 +184,21 @@ Authorization: Bearer <the token configured on the data source>
 
 #### The output call
 
-The output call is asynchronous. The recipient's answer is accepted whether or not your endpoint responds. The platform makes at most three attempts. Each carries the same `Idempotency-Key` and the attempt number in `X-iLetter-Attempt`; de-duplicate on `Idempotency-Key`. If you configure an HMAC signature, it is sent in a header of your choice (default `X-Signature`) and covers the body, not the headers.
+The output call is asynchronous. The recipient's answer is accepted whether or not your endpoint responds. Every attempt carries the same `Idempotency-Key`, a UUID assigned per endpoint delivery, and its attempt number in `X-iLetter-Attempt`, counted from 1. The body is identical on every attempt, so de-duplicate on `Idempotency-Key`. If you configure an HMAC signature, it is sent in a header of your choice (default `X-Signature`) and is computed over the body, so values inside the body are covered and header values are not.
 
-With the structured format the platform builds the body:
+> **Warning: Retries run for 48 hours, not for a few minutes**
+>
+> Three quick attempts first, then on a widening schedule of 1, 2, 4, 8, 16, 32 and 60 minutes and hourly after that, each interval jittered, until 48 hours after the first attempt. Only then is the delivery marked failed. Keep your de-duplication window wide enough to cover two days, or you will process the same answer twice.
 
-- `recipient`: the return data configured for the letter in Studio.
+An answer your endpoint did give is not retried: a 4xx other than 408 or 429, an unresolved 3xx, or any outcome after a redirect was followed ends the delivery at once.
 
-- `answers`: one entry per answered field.
+An endpoint of your own, added in Studio as a Custom Webhook, always receives the format `structured-v2`; there is no alternative for it. The formats without a `payloadFormat` belong to the preset integrations, where the platform renders the body in the shape of the respective provider.
+
+With `structured-v2` the platform builds the body:
+
+- `recipient`: the header return-data fields you marked in the composer, under the names you gave them. A letter that defines none sends `recipient` as an empty object `{}`, on every attempt.
+
+- `answers`: one entry per answered field, under the wrapper key configured on the endpoint (default `answers`). With no wrapper key set, the entries sit flat at top level instead.
 
 - `meta`: `letterId`, `letterName`, `webhookCallId`, `submittedAt` and the four context values. `webhookCallId` identifies the submission and is the same for every endpoint the letter posts to. It is not the `Idempotency-Key`.
 

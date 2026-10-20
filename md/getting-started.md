@@ -43,9 +43,11 @@ The answer is `201` with the delivery id in the body:
 
 ```
 {
-  "deliveryId": "8f1c0c22-4c6d-4b1a-9a3e-2b4d7f0e51aa"
+  "id": "8f1c0c22-4c6d-4b1a-9a3e-2b4d7f0e51aa"
 }
 ```
+
+The field is called `id` here. The status response returns the same value as `deliveryId`, so read the right name on each side.
 
 Keep that id. It is the only way to ask what happened. See [Sending documents](https://developer.klara.ch/epost-preview/#delivery).
 
@@ -56,16 +58,30 @@ curl -X GET "$EPOST_HOST/epost/v2/deliveries/{delivery-id}/status" \
   -H "X-API-KEY: $EPOST_API_KEY"
 ```
 
-Immediately after sending you get `PROCESSING`. A finished delivery looks like this:
+Immediately after sending you get `CREATED` or `PROCESSING`. A finished delivery looks like this:
 
 ```
 {
   "deliveryId": "8f1c0c22-4c6d-4b1a-9a3e-2b4d7f0e51aa",
   "status": "DELIVERED",
-  "documents": [
-    { "fileName": "letter.pdf", "channel": "DIGITAL", "status": "DELIVERED" }
-  ]
+  "document": {
+    "deliveredDocument": [
+      {
+        "documentTitle": "Quickstart test letter",
+        "detail": [
+          {
+            "senderUserId": "quickstart-recipient-1",
+            "deliveryChannel": "DIGITAL",
+            "participantId": "1a234567-1234-12a3-a1bc-12a3b4c5d678"
+          }
+        ]
+      }
+    ],
+    "failedDocument": []
+  }
 }
 ```
+
+The `detail` list is only filled when the delivery was sent with `displayDeliveredDocument: true`. Without it you learn that the delivery went through, but not to which of your recipients.
 
 Treat `DELIVERED`, `DELIVERED_WITH_ERROR` and `ERROR` as final and stop polling. The complete state machine is not published yet, see [Known limitations](https://developer.klara.ch/epost-preview/#roadmap).

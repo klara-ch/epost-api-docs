@@ -51,6 +51,10 @@
     {
       "name": "ePost Digital Letterbox",
       "description": "Access and manage your digital letter box via public API"
+    },
+    {
+      "name": "ePost eArchive",
+      "description": "Operations related to directories of eArchive"
     }
   ],
   "paths": {
@@ -1982,6 +1986,295 @@
           },
           "422": {
             "description": "Validation failed on the request body, or a credential change re-matches to multiple accounts.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/archives/directories": {
+      "get": {
+        "tags": [
+          "ePost eArchive"
+        ],
+        "summary": "Get all folders (branded folders, unbranded folders and subfolders) in the Storage",
+        "operationId": "listArchiveFolders",
+        "responses": {
+          "200": {
+            "description": "Retrieve folders successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Directory"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/archives/letters": {
+      "get": {
+        "tags": [
+          "ePost eArchive"
+        ],
+        "summary": "Get letters in root storage or in a specific folder.",
+        "operationId": "listArchiveLetters",
+        "parameters": [
+          {
+            "name": "directory-id",
+            "in": "query",
+            "description": "The ID of the folder to get for letters. If empty, it will get letters in the root storage.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "637b04533b81694d793c2159"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Define the limit of the letter list that this API returns.<br />For example, if a user have 20 letters in their inbox, and this <b>limit</b> parameter is 5, and the <b>offset</b> parameter is 0,<br />then this API will return letter list containing the first 5 letters<br />If not set, then default value of 48 is used",
+            "schema": {
+              "format": "int32",
+              "default": "48",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Define which position to start getting letter list.<br />For example, if a user have 20 letters in their inbox, and this <b>offset</b> parameter is 5,<br />then this API will return letter list from the 5th letter.<br />If not set, then default value of 0 is used",
+            "schema": {
+              "format": "int32",
+              "default": "0",
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieve letters successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Letter"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/v2/archives/upload": {
+      "post": {
+        "tags": [
+          "ePost eArchive"
+        ],
+        "summary": "Uploads a document to the ePost archive of the authenticated tenant together with its metadata.",
+        "description": "<p>Uploads a document to the ePost archive of the authenticated tenant together with its metadata.</p><p>The request contains the binary file and document metadata. After a successful upload, the document is stored in the tenant's ePost archive and can be accessed through the archive.</p>",
+        "operationId": "uploadArchiveDocument",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveUploadRequest"
+              },
+              "encoding": {
+                "file": {
+                  "contentType": "application/octet-stream"
+                },
+                "directoryIds": {
+                  "contentType": "text/plain",
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Document uploaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchiveUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "Length required — the request did not advertise a numeric, non-negative <code>Content-Length</code>. Chunked transfer encoding is not supported on this endpoint.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request entity too large — payload exceeds the 1GB ceiling.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4473,6 +4766,167 @@
           }
         }
       },
+      "ArchiveUploadRequest": {
+        "description": "Single file to archive together with its metadata. Standard / large-file routing is decided automatically by the adapter from the request <code>Content-Length</code>; callers do not need to flag large uploads explicitly.",
+        "type": "object",
+        "properties": {
+          "file": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BinaryFileV2"
+              },
+              {
+                "description": "The binary file to upload to the ePost archive.<br>\nThe file must be provided as part of a multipart/form-data request and must not exceed &le; 200MB.<br>\nSupported file types are [ .pdf, .jpg, .png, .gif, .xlsx, .docx, .txt, .rtf]."
+              }
+            ]
+          },
+          "metadata": {
+            "description": "metadata",
+            "required": [
+              "fileName",
+              "documentTitle",
+              "documentReferenceDate"
+            ],
+            "type": "object",
+            "properties": {
+              "fileName": {
+                "description": "Original file name (with extension).",
+                "pattern": "\\S",
+                "type": "string",
+                "example": "sample.xlsx",
+                "nullable": false
+              },
+              "documentTitle": {
+                "description": "Display title shown in eArchive.",
+                "pattern": "\\S",
+                "type": "string",
+                "example": "sample",
+                "nullable": false
+              },
+              "documentReferenceDate": {
+                "description": "Reference date of the document in ISO local-date format (yyyy-MM-dd).",
+                "pattern": "\\S",
+                "type": "string",
+                "example": "2026-05-06",
+                "nullable": false
+              },
+              "documentTypes": {
+                "description": "Document types (free-form tags such as <code>invoice</code>, <code>receipt</code>, <code>contract</code>, <code>HR</code>). Defaults to an empty list when omitted.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": []
+              },
+              "senderName": {
+                "description": "Display name of the sender.",
+                "type": "string",
+                "example": "ABC AG"
+              },
+              "description": {
+                "description": "Display description shown in eArchive.",
+                "type": "string",
+                "example": "Invoice file"
+              }
+            }
+          },
+          "directoryIds": {
+            "description": "The IDs of the archive directories in which the uploaded document should be stored.\nAll provided directory IDs must belong to the authenticated tenant. If no directory ID is provided, the document is stored without a directory assignment.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ArchiveUploadResponse": {
+        "description": "Response returned after a document is successfully archived.",
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "description": "Identifier of the newly archived document.",
+            "type": "string",
+            "example": "6a028c8e3a805659063bde2f"
+          },
+          "fileName": {
+            "description": "File name of the stored document (post sanitization).",
+            "type": "string",
+            "example": "Invoice_2026_05_08.pdf"
+          },
+          "documentTitle": {
+            "description": "Display title of the archived document.",
+            "type": "string",
+            "example": "Invoice 2026-05-08"
+          },
+          "documentReferenceDate": {
+            "description": "Reference date of the document (yyyy-MM-dd).",
+            "type": "string",
+            "example": "2026-05-08"
+          },
+          "description": {
+            "description": "Display description of the archived document.<br>\nSourced from the BFF response field <code>documentDescription</code> and renamed here to <code>description</code> so the public API uses one consistent term across request and response.",
+            "type": "string",
+            "example": "Monthly partner export for invoicing reconciliation"
+          },
+          "directoryIds": {
+            "description": "Directory ids the document is stored in, as resolved by the eArchive backend (after permission checks and root-directory normalization). Omitted when the document is stored at the root.<br>\nSourced from the BFF response field <code>folderIds</code> and renamed here to <code>directoryIds</code> so the public API uses one consistent term across request and response.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "637b04533b81694d793c2159"
+            ]
+          },
+          "createdBy": {
+            "description": "User identifier (typically email) that created the document.",
+            "type": "string",
+            "example": "kiendong2411@axongroupio.ch"
+          },
+          "createdDate": {
+            "description": "Creation timestamp in ISO-8601 format (UTC).",
+            "type": "string",
+            "example": "2026-05-12T02:12:30.691Z"
+          },
+          "updatedBy": {
+            "description": "User identifier (typically email) of the last update. Equal to <code>createdBy</code> on initial upload.",
+            "type": "string",
+            "example": "kiendong2411@axongroupio.ch"
+          },
+          "updatedDate": {
+            "description": "Last update timestamp in ISO-8601 format (UTC). Equal to <code>createdDate</code> on initial upload.",
+            "type": "string",
+            "example": "2026-05-12T02:12:30.691Z"
+          },
+          "link": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArchiveUploadResponseLink"
+              },
+              {
+                "description": "Resource link references for the archived document."
+              }
+            ]
+          },
+          "versionNumber": {
+            "format": "int32",
+            "description": "Monotonically increasing version number of the document. Starts at <code>1</code> on initial upload.",
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "ArchiveUploadResponseLink": {
+        "description": "Resource link references for the archived document.",
+        "type": "object",
+        "properties": {
+          "self": {
+            "description": "Self link to the archived document, relative to the eArchive backend (<code>{tenantId}/documents/{documentId}</code>).",
+            "type": "string",
+            "example": "064f1c76-ed3e-4d3d-800b-9195e13edcbe/documents/6a028c8e3a805659063bde2f"
+          }
+        }
+      },
       "BaseDeliveryMetadataV2": {
         "description": "Metadata of one delivery v2 contain list metadata of files.",
         "type": "object",
@@ -5039,6 +5493,45 @@
           "REGISTERED"
         ],
         "type": "string"
+      },
+      "Directory": {
+        "description": "The metadata of the directory (folder).",
+        "type": "object",
+        "properties": {
+          "directoryId": {
+            "description": "Id of the directory. Empty for branded directory.",
+            "type": "string",
+            "readOnly": true,
+            "example": "6406a0a6f000d7555cfffb92"
+          },
+          "directoryName": {
+            "description": "Name of the directory",
+            "type": "string",
+            "example": "Working"
+          },
+          "numberOfDocuments": {
+            "format": "int32",
+            "description": "Number of documents in the directory",
+            "type": "integer",
+            "example": 10
+          },
+          "parentDirectoryIds": {
+            "description": "The parent folder's IDs of the folder. Empty if the folder is in the root storage.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "63f5e84ac1e69b3f45d54097",
+              "63f5e9f4c1e69b3f45d555da"
+            ]
+          },
+          "hasSubDirectories": {
+            "description": "Flag indicating whether the folder has subdirectories.",
+            "type": "boolean",
+            "example": true
+          }
+        }
       },
       "DocumentHandling": {
         "type": "object",

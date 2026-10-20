@@ -18,4 +18,4 @@ Part of the ePost API documentation. Canonical page: https://developer.klara.ch/
 |---|---|
 | Swagger, production | `https://api.epost.ch/docs` |
 | Swagger, test | `https://api-test.klara-epost.tech/docs` |
-| Postman collection | A ready-made collection for sending a document exists, along with an environment file. Ask [enterprise support](mailto:support.enterprise@epostservice.ch) for the current version |
+| Postman collection | A ready-made collection for sending a document, with an environment file, is published on the ePost developer portal under «Swagger Documentation and Postman Collection». It covers choosing a tenant, requesting a token, sending one or several documents and reading the delivery status |

@@ -29,3 +29,9 @@ Recipients control their own letterbox, and three of those controls cause delive
 > If a recipient receives a new eLetter and does not open their letterbox for 200 days, ePost deactivates it. Recipients are warned beforehand by email, push notification and SMS. So a participant id that matched last year may no longer be deliverable today. Match again rather than caching participant ids indefinitely.
 
 This is also why [matching before delivery](https://developer.klara.ch/epost-preview/#matching) pays off at volume: it tells you who is actually reachable before you commit to a run.
+
+### eArchive
+
+The ePost archive is the storage behind a tenant's letters. Its endpoints list the folders of the storage, list the letters in the root storage or in one folder, and upload a document together with its metadata into the archive of the authenticated tenant. They act on the archive of the tenant behind the credentials, like the rest of this chapter.
+
+eArchive is new to this documentation and the specification carries little prose for it: the parameters and schemas are complete, the descriptions are thin. See the [reference](https://developer.klara.ch/epost-preview/#ref-archive).

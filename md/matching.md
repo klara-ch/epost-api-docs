@@ -31,7 +31,7 @@ The `-matchings` endpoints answer in the same request. The `-matching-runs` endp
 
 > **Warning: One limit in the specification is incomplete**
 >
-> The description reads «The limit size of the metadata is 5» without a unit. Five what, fields or entries, is not stated. Treat it as a hard limit of five until it is clarified.
+> The description reads «The limit size of the metadata is 5» without a unit. It is not the number of recipients: the schema allows up to 50,000 per request. What is limited in practice is the size of the request, and a request that is too large is rejected. Split large sets into smaller requests, or use the matching runs.
 
 ### Before delivery or on delivery
 
@@ -81,7 +81,7 @@ A credential is either **primary** or not. Only primary credentials can produce 
 | Postal address | **yes** | Code by physical letter |
 | PO box | **yes** | Code by physical letter |
 | Participant ID | **yes** | Can be used directly for delivery |
-| UID | no | Cannot produce a match on its own. Supply a postal address, PO box or participant id as well |
+| UID | no | Two companies carrying the same UID in their profile cannot be told apart, and a company that has not entered its UID there cannot be matched on it at all. Cannot produce a match on its own. Supply a postal address, PO box or participant id as well |
 
 > **Note: Only verified credentials count**
 >

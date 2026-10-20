@@ -19,7 +19,9 @@ A delivery carries one or more documents to one or more recipients. The platform
 
 - **200 MB per document**, counting the binary and its metadata together.
 
-- **The synchronous endpoint takes at most 1500 documents** in one delivery when each document goes to one recipient, or one document to 1500 recipients. The asynchronous endpoint states no such limit.
+- **The asynchronous endpoint takes at most 2,000 documents and 2,000 recipients** in one delivery. Split larger runs into several deliveries.
+
+- **The synchronous endpoint takes at most 1500 documents** in one delivery when each document goes to one recipient, or one document to 1500 recipients.
 
 ### Checking what happened
 
@@ -53,6 +55,8 @@ Set `deliveryChannelPreferences: ["DIGITAL"]` when you want digital delivery onl
 - **`allRecipientsRequired`** decides whether the whole delivery fails if one recipient cannot be reached.
 
 - **`senderUserId`** is your own reference for the recipient. Use it to map the result back to your records.
+
+- **`displayDeliveredDocument`** shows more about the delivered document, among it `senderEndToEndId`, `senderUserId` and `documentTitle`. **Set it whenever you need to know who received what.** Without it the status response leaves the per-recipient `detail` list of delivered documents empty, and `senderUserId` cannot map the result back to your records.
 
 ### Monitoring across deliveries
 

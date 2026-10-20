@@ -21,7 +21,7 @@ source.
 - `md/*.md` — one file per chapter of the documentation
 - `md/reference-*.md` — the endpoints of one area each, with parameters, request
   and response bodies
-- `epost-openapi.json` — the contract itself, 45 operations
+- `epost-openapi.json` — the contract itself, 48 operations
 
 Where a Markdown file and the specification disagree, the specification is the
 contract.

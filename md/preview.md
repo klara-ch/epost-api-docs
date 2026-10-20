@@ -13,6 +13,8 @@ Two services answer the question «what would happen if I sent this» without se
 
 Both take `multipart/form-data` and both carry the same size limits as a real delivery: 2 GB per request, 200 MB per document.
 
+**Both need a document,** as a real delivery does. If all you want to know is whether a recipient exists in ePost and can be reached digitally, [identity matching](https://developer.klara.ch/epost-preview/#matching) answers that without a document and in a single call.
+
 > **Note: Why this matters more than it looks**
 >
 > Delivery is charged per item and the price depends on the channel. Asking first turns a cost surprise into a decision you make in code.
