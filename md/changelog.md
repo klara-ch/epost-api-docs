@@ -188,6 +188,20 @@ POST `/epost/preview/delivery-channels` — response body now documented for 401
 
 ### Preview builds
 
+#### Preview, eighth build · Delivery response and status corrected, async limits
+
+Corrections from a large production run against this API:
+
+- **Correction: the delivery id comes back as `id`.** Getting started showed `deliveryId`. The status response uses `deliveryId` for the same value.
+
+- **Correction: the status example now shows the real structure,** with delivered and failed documents and a `detail` list per recipient.
+
+- **Correction: the asynchronous endpoint has limits.** At most 2,000 documents and 2,000 recipients per delivery. This page said it had none.
+
+- **Set `displayDeliveredDocument` to see who received what.** Without it the status response does not list recipients.
+
+- Smaller changes: how to check a delivery after a timeout, what the identity matching limit is not, and two new entries under Known limitations.
+
 #### Preview, seventh build · eArchive, c/o addresses, iLetter callbacks corrected
 
 Additions and corrections from a comparison with the ePost developer portal, plus eArchive:
