@@ -1,6 +1,76 @@
 # ePost Sign
 
-8 operations of the ePost API, generated from `epost-openapi.json`. Canonical page: https://developer.klara.ch/epost-preview/#reference
+10 operations of the ePost API, generated from `epost-openapi.json`. Canonical page: https://developer.klara.ch/epost-preview/#reference
+
+### GET /epost/signing/billing-allowlist
+
+List the calling company's billing allowlist.
+
+Returns the individual ePost users the calling company has authorised to charge a signing request to it. Only reachable for a COMPANY tenant managing its own allowlist; an entry existing here IS the authorization — there is no separate company role to hold.
+
+- operationId: `listBillingAllowlist`
+
+**Responses**
+
+| Status | Body | Meaning |
+|---|---|---|
+| `200` | application/json | The company's current allowlist entries (possibly empty). |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | ePost Sign widget not subscribed, or the calling tenant is not a COMPANY tenant. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+
+### POST /epost/signing/billing-allowlist
+
+Authorise an individual ePost user to bill signing requests to the calling company.
+
+Adds `email` to the calling company's billing allowlist. The email must resolve to exactly one existing ePost user holding an INDIVIDUAL account. Idempotent: re-adding an email already on the allowlist is a no-op and returns the existing entry. Only reachable for a COMPANY tenant managing its own allowlist.
+
+- operationId: `addBillingAllowlistEntry`
+
+**Request body** (`application/json`, required)
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `email` | string | yes | Email of the individual ePost user to authorise. Must resolve to exactly one existing ePost user holding an INDIVIDUAL account. |
+
+**Responses**
+
+| Status | Body | Meaning |
+|---|---|---|
+| `201` | BillingAllowlistEntry | Entry authorised. |
+| `400` | ErrorMessage | Data invalid Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | ePost Sign widget not subscribed, or the calling tenant is not a COMPANY tenant. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | No ePost user exists with the given email. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `422` | ErrorMessage | The email matches more than one ePost account (ambiguous), or the request body failed validation. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+
+### DELETE /epost/signing/billing-allowlist/{entry-id}
+
+Remove an entry from the calling company's billing allowlist.
+
+Revokes the authorization: the referenced individual ePost user may no longer charge a signing request to the calling company. Does not affect already-submitted signing processes — `billToCompanyTenantId` is fixed on the process at creation and never re-checked. Only reachable for a COMPANY tenant managing its own allowlist.
+
+- operationId: `removeBillingAllowlistEntry`
+
+**Parameters**
+
+| Name | In | Required | Type | Description |
+|---|---|---|---|---|
+| `entry-id` | path | yes | string (uuid) | Server-assigned unique identifier of the allowlist entry to remove, as returned by `GET /signing/billing-allowlist` or `POST /signing/billing-allowlist`. |
+
+**Responses**
+
+| Status | Body | Meaning |
+|---|---|---|
+| `204` | none declared | Entry removed. |
+| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `403` | ErrorMessage | ePost Sign widget not subscribed, or the calling tenant is not a COMPANY tenant. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `404` | ErrorMessage | No such entry exists for the calling company. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
+| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 
 ### GET /epost/signing/billing-companies
 
@@ -110,7 +180,7 @@ Returns the data submitted on `POST` plus the signing status: who has already si
 
 Update a running signing process (ADMIN-only).
 
-ADMIN-only update of a running signing process. Callable by the process creator or by any active participant that holds the `ADMIN` role (LUZ-158618). All fields on the body are optional; only the fields the caller wishes to change need to be sent. Fields set to `null` are treated as "no change". Editable fields: `title`, `description`, `deadline` (must be strictly in the future), `documentHandling.allowPrint` / `documentHandling.allowSave`. Field-level diffing is applied and an audit trail entry (`PROCESS_UPDATED`) is written only when at least one value actually changed. Locked at creation (never patchable through this endpoint): `signatureType`, `mode`, `participants` (participants have their own PATCH endpoint), `forceOnboarding`, `billToCompanyTenantId`. Lifecycle: only `status = CANCELLED` is accepted — deactivates the process (SwissSign `signaturesCancelProcessing`), records a `PROCESS_CANCELLED` audit trail entry, schedules the process for deletion, delivers the partially-signed document to `RECEIVER` participants and notifies `SIGNER` / `ADMIN` participants. Any other status value is rejected with HTTP 400. Updates against a process in `COMPLETED`, `CANCELLED` or `EXPIRED` are rejected with HTTP 409. Callers that are not an `ADMIN` participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.
+ADMIN-only update of a running signing process. Callable by the process creator or by any active participant that holds the `ADMIN` role. All fields on the body are optional; only the fields the caller wishes to change need to be sent. Fields set to `null` are treated as "no change". Editable fields: `title`, `description`, `deadline` (must be strictly in the future), `documentHandling.allowPrint` / `documentHandling.allowSave`. Field-level diffing is applied and an audit trail entry (`PROCESS_UPDATED`) is written only when at least one value actually changed. Locked at creation (never patchable through this endpoint): `signatureType`, `mode`, `participants` (participants have their own PATCH endpoint), `forceOnboarding`, `billToCompanyTenantId`. Lifecycle: only `status = CANCELLED` is accepted — deactivates the process (SwissSign `signaturesCancelProcessing`), records a `PROCESS_CANCELLED` audit trail entry, schedules the process for deletion, delivers the partially-signed document to `RECEIVER` participants and notifies `SIGNER` / `ADMIN` participants. Any other status value is rejected with HTTP 400. Updates against a process in `COMPLETED`, `CANCELLED` or `EXPIRED` are rejected with HTTP 409. Callers that are not an `ADMIN` participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.
 
 - operationId: `updateSigningProcess`
 
@@ -174,7 +244,7 @@ Returns the FINAL signed PDF once the process is `COMPLETED`. While signing is o
 
 Update a participant of a running signing process (ADMIN-only).
 
-ADMIN-only update of a single participant. Callable by the process creator or by any active participant that holds the `ADMIN` role (LUZ-158618). Only reachable while the participant is `PENDING` or `FORCED_ONBOARDING` — once the participant has `SIGNED`, `REJECTED`, `EXPIRED` or has already been `REMOVED`, the request is rejected with HTTP 409. All fields on the body are optional; field-level diffing is applied and an audit trail entry (`PARTICIPANT_UPDATED`) is written only when at least one value actually changed. Removal: send `status = REMOVED` to remove the participant from the process. Records a `PARTICIPANT_REMOVED` audit trail entry. Any other status value is rejected with HTTP 400. Credential-change re-matching (LUZ-158618): changing any credential field — `hashedPrimaryCredential`, `hashedPrimaryValue`, `derivedHashedCredentials`, `derivedHashedValue`, `unhashedCredentials`, or `allCredentialShouldMatch` — re-runs tenant-directory matching for this participant slot. If the resolved recipient changes, the previously-resolved tenant is remembered (so their subsequent sign attempts are rejected with `REMOVED_BY_SENDER`) and the initial signing notification is re-delivered to the newly resolved recipient. The previous recipient's letterbox entry is intentionally NOT withdrawn. If the new credential matches multiple accounts the request is rejected with HTTP 422. Last-ADMIN protection: removing the last `ADMIN` — or stripping the `ADMIN` role from the last `ADMIN` by supplying a `roles` list that does not contain `ADMIN` — is rejected with HTTP 409; the participant is left unchanged. Callers that are not an `ADMIN` participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.
+ADMIN-only update of a single participant. Callable by the process creator or by any active participant that holds the `ADMIN` role. Only reachable while the participant is `PENDING` or `FORCED_ONBOARDING` — once the participant has `SIGNED`, `REJECTED`, `EXPIRED` or has already been `REMOVED`, the request is rejected with HTTP 409. All fields on the body are optional; field-level diffing is applied and an audit trail entry (`PARTICIPANT_UPDATED`) is written only when at least one value actually changed. Removal: send `status = REMOVED` to remove the participant from the process. Records a `PARTICIPANT_REMOVED` audit trail entry. Any other status value is rejected with HTTP 400. Credential-change re-matching: changing any credential field — `hashedPrimaryCredential`, `hashedPrimaryValue`, `derivedHashedCredentials`, `derivedHashedValue`, `unhashedCredentials`, or `allCredentialShouldMatch` — re-runs tenant-directory matching for this participant slot. If the resolved recipient changes, the previously-resolved tenant is remembered (so their subsequent sign attempts are rejected with `REMOVED_BY_SENDER`) and the initial signing notification is re-delivered to the newly resolved recipient. The previous recipient's letterbox entry is intentionally NOT withdrawn. If the new credential matches multiple accounts the request is rejected with HTTP 422. Last-ADMIN protection: removing the last `ADMIN` — or stripping the `ADMIN` role from the last `ADMIN` by supplying a `roles` list that does not contain `ADMIN` — is rejected with HTTP 409; the participant is left unchanged. Callers that are not an `ADMIN` participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.
 
 - operationId: `updateSigningParticipant`
 
@@ -211,30 +281,5 @@ ADMIN-only update of a single participant. Callable by the process creator or by
 | `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 | `409` | ErrorMessage | Participant is no longer in an editable state (not `PENDING` / `FORCED_ONBOARDING`), or the change would leave the process without any `ADMIN`. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 | `422` | ErrorMessage | Validation failed on the request body, or a credential change re-matches to multiple accounts. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
-| `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
-| `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
-
-### POST /epost/signing/processes/{processId}/retry-delivery
-
-Retry delivery of a signing process.
-
-Re-arms the outstanding delivery tasks of the signing process and triggers an immediate retry of only the not-yet-completed steps (e.g. delivering the signed document to `RECEIVER` participants or sending forced-onboarding invitations). Already-completed steps are not repeated. Returns the refreshed process view with the recomputed delivery state.
-
-- operationId: `retrySigningDelivery`
-
-**Parameters**
-
-| Name | In | Required | Type | Description |
-|---|---|---|---|---|
-| `processId` | path | yes | string (uuid) | Server-assigned unique identifier of the signing process. |
-
-**Responses**
-
-| Status | Body | Meaning |
-|---|---|---|
-| `200` | SigningProcess | Delivery retried; refreshed process state. |
-| `401` | ErrorMessage | No Authorization header found or invalid token Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
-| `403` | ErrorMessage | ePost Sign widget not subscribed. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
-| `404` | ErrorMessage | Resource not found Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 | `429` | ErrorMessage | API rate limit exceeded Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |
 | `500` | ErrorMessage | Something went wrong on our side while processing the request. Please kindly contact our support. Failures detected by a downstream service carry that service's own `code`, which this reference does not enumerate, so the `code` field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list. |

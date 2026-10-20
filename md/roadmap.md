@@ -6,7 +6,7 @@ Part of the ePost API documentation. Canonical page: https://developer.klara.ch/
 
 Gaps we know about, listed here so you find out before you build rather than halfway through.
 
-- **Most endpoints carry only a one-line summary.** 18 of 43 have no description beyond the title, and the digital letterbox is affected almost entirely. The parameters and schemas are complete, the prose is not.
+- **Most endpoints carry only a one-line summary.** 18 of 45 have no description beyond the title, and the digital letterbox is affected almost entirely. The parameters and schemas are complete, the prose is not.
 
 - **No permissions are documented.** No endpoint states which role or permission it needs.
 

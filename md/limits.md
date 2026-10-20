@@ -4,7 +4,7 @@ Part of the ePost API documentation. Canonical page: https://developer.klara.ch/
 
 ## Limits and rate limiting
 
-The API enforces a rate limit. When you exceed it, the response is `429 API rate limit exceeded`. It is declared on 36 of the 43 endpoints.
+The API enforces a rate limit. When you exceed it, the response is `429 API rate limit exceeded`. It is declared on 38 of the 45 endpoints.
 
 > **Warning: The limit is not published yet**
 >

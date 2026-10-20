@@ -6,7 +6,7 @@
 
 ## Machine-readable formats
 
-- [OpenAPI specification](https://developer.klara.ch/epost-preview/epost-openapi.json): the contract, 43 operations, OpenAPI 3.0.3
+- [OpenAPI specification](https://developer.klara.ch/epost-preview/epost-openapi.json): the contract, 45 operations, OpenAPI 3.0.3
 - [Build information](https://developer.klara.ch/epost-preview/build-info.json): when this was built and from which source
 
 ## Guides
@@ -41,7 +41,7 @@ Each file lists the operations of one area with parameters, request and response
 - [ePost Digital LetterBox Identity Matching with detailed recipient feedback](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox-identity-matching-with-detailed-recipient-feedback.md): 5 operations
 - [ePost Digital Letterbox](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox.md): 13 operations
 - [ePost Digital Letterbox Onboarding and Profile Management](https://developer.klara.ch/epost-preview/md/reference-epost-digital-letterbox-onboarding-and-profile-management.md): 1 operation
-- [ePost Sign](https://developer.klara.ch/epost-preview/md/reference-epost-sign.md): 8 operations
+- [ePost Sign](https://developer.klara.ch/epost-preview/md/reference-epost-sign.md): 10 operations
 
 ## Notes for agents
 

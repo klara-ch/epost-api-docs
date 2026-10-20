@@ -958,6 +958,274 @@
         ]
       }
     },
+    "/epost/signing/billing-allowlist": {
+      "get": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "List the calling company's billing allowlist.",
+        "description": "Returns the individual ePost users the calling company has authorised to charge a signing request to it. Only reachable for a COMPANY tenant managing its own allowlist; an entry existing here IS the authorization — there is no separate company role to hold.",
+        "operationId": "listBillingAllowlist",
+        "responses": {
+          "200": {
+            "description": "The company's current allowlist entries (possibly empty).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BillingAllowlistEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed, or the calling tenant is not a COMPANY tenant.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Authorise an individual ePost user to bill signing requests to the calling company.",
+        "description": "Adds <code>email</code> to the calling company's billing allowlist. The email must resolve to exactly one existing ePost user holding an INDIVIDUAL account. Idempotent: re-adding an email already on the allowlist is a no-op and returns the existing entry. Only reachable for a COMPANY tenant managing its own allowlist.",
+        "operationId": "addBillingAllowlistEntry",
+        "requestBody": {
+          "description": "The individual ePost user's email to authorise.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BillingAllowlistAddRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Entry authorised.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingAllowlistEntry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data invalid<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed, or the calling tenant is not a COMPANY tenant.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No ePost user exists with the given email.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The email matches more than one ePost account (ambiguous), or the request body failed validation.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/epost/signing/billing-allowlist/{entry-id}": {
+      "delete": {
+        "tags": [
+          "ePost Sign"
+        ],
+        "summary": "Remove an entry from the calling company's billing allowlist.",
+        "description": "Revokes the authorization: the referenced individual ePost user may no longer charge a signing request to the calling company. Does not affect already-submitted signing processes — <code>billToCompanyTenantId</code> is fixed on the process at creation and never re-checked. Only reachable for a COMPANY tenant managing its own allowlist.",
+        "operationId": "removeBillingAllowlistEntry",
+        "parameters": [
+          {
+            "name": "entry-id",
+            "in": "path",
+            "description": "Server-assigned unique identifier of the allowlist entry to remove, as returned by <code>GET /signing/billing-allowlist</code> or <code>POST /signing/billing-allowlist</code>.",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Entry removed."
+          },
+          "401": {
+            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ePost Sign widget not subscribed, or the calling tenant is not a COMPANY tenant.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such entry exists for the calling company.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/epost/signing/billing-companies": {
       "get": {
         "tags": [
@@ -1159,7 +1427,7 @@
           }
         ],
         "requestBody": {
-          "description": "Multipart body with exactly two parts: <br/><ul><li><code>file</code> — the PDF to be signed (<code>application/pdf</code>). Exactly ONE file per process. Size limit: <strong>200 MB</strong> per document. Requests advertising a larger <code>Content-Length</code> are rejected with HTTP 413 (<code>SIGNING_UPLOAD_TOO_LARGE</code>) before the body is buffered; missing / malformed <code>Content-Length</code> is rejected with HTTP 411 (<code>SIGNING_CONTENT_LENGTH_REQUIRED</code>).</li><li><code>metadata</code> — <code>application/json</code> body of type <code>SigningProcessCreateRequest</code>.</li></ul><br/><strong>How to fill <code>metadata</code></strong>:<br/><ul><li><code>title</code> (required, ≤ 255) — shown in the list and the signing room.</li><li><code>description</code> (optional, ≤ 2000).</li><li><code>signatureType</code> (required) — one of <code>SES</code>, <code>AES</code>, <code>QES</code>. Locked after creation.</li><li><code>participants</code> (required, ≥ 1) — must contain at least one <code>ADMIN</code> AND at least one <code>SIGNER</code>. See <code>ParticipantInput</code>.</li><li><code>mode</code> (optional, default <code>PARALLEL</code>) — locked after creation.</li><li><code>deadline</code> (required, ISO date).</li><li><code>documentHandling</code> (optional) — <code>allowPrint</code> / <code>allowSave</code> both default to <code>false</code>.</li><li><code>forceOnboarding</code> (required) — only effective when the participant credential is an email address.</li><li><code>billToCompanyTenantId</code> (optional) — retrieve eligible values via <code>GET /signing/billing-companies</code>. Requires the <code>DOCUMENT_SIGN_BILLING</code> company role on the referenced company.</li></ul>",
+          "description": "Multipart body with exactly two parts: <br/><ul><li><code>file</code> — the PDF to be signed (<code>application/pdf</code>). Exactly ONE file per process. Size limit: <strong>200 MB</strong> per document. Requests advertising a larger <code>Content-Length</code> are rejected with HTTP 413 (<code>SIGNING_UPLOAD_TOO_LARGE</code>) before the body is buffered; missing / malformed <code>Content-Length</code> is rejected with HTTP 411 (<code>SIGNING_CONTENT_LENGTH_REQUIRED</code>).</li><li><code>metadata</code> — <code>application/json</code> body of type <code>SigningProcessCreateRequest</code>.</li></ul><br/><strong>How to fill <code>metadata</code></strong>:<br/><ul><li><code>title</code> (required, ≤ 255) — shown in the list and the signing room.</li><li><code>description</code> (optional, ≤ 2000).</li><li><code>signatureType</code> (required) — one of <code>SES</code>, <code>AES</code>, <code>QES</code>. Locked after creation.</li><li><code>participants</code> (required, ≥ 1) — must contain at least one <code>ADMIN</code>, at least one <code>SIGNER</code>, AND at least one <code>RECEIVER</code> (the signed document is delivered strictly to <code>RECEIVER</code> participants; a request without one is rejected with HTTP 422). See <code>ParticipantInput</code>.</li><li><code>mode</code> (optional, default <code>PARALLEL</code>) — locked after creation.</li><li><code>deadline</code> (required, ISO date).</li><li><code>documentHandling</code> (optional) — <code>allowPrint</code> / <code>allowSave</code> both default to <code>false</code>.</li><li><code>forceOnboarding</code> (required) — only effective when the participant credential is an email address.</li><li><code>billToCompanyTenantId</code> (optional) — retrieve eligible values via <code>GET /signing/billing-companies</code>. Requires the <code>DOCUMENT_SIGN_BILLING</code> company role on the referenced company.</li></ul>",
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -1376,7 +1644,7 @@
           "ePost Sign"
         ],
         "summary": "Update a running signing process (ADMIN-only).",
-        "description": "ADMIN-only update of a running signing process. Callable by the process creator or by <strong>any active participant that holds the <code>ADMIN</code> role</strong> (LUZ-158618). All fields on the body are optional; only the fields the caller wishes to change need to be sent. Fields set to <code>null</code> are treated as &quot;no change&quot;.<br/><br/><strong>Editable fields</strong>: <code>title</code>, <code>description</code>, <code>deadline</code> (must be strictly in the future), <code>documentHandling.allowPrint</code> / <code>documentHandling.allowSave</code>. Field-level diffing is applied and an audit trail entry (<code>PROCESS_UPDATED</code>) is written only when at least one value actually changed.<br/><br/><strong>Locked at creation</strong> (never patchable through this endpoint): <code>signatureType</code>, <code>mode</code>, <code>participants</code> (participants have their own PATCH endpoint), <code>forceOnboarding</code>, <code>billToCompanyTenantId</code>.<br/><br/><strong>Lifecycle</strong>: only <code>status = CANCELLED</code> is accepted &mdash; deactivates the process (SwissSign <code>signaturesCancelProcessing</code>), records a <code>PROCESS_CANCELLED</code> audit trail entry, schedules the process for deletion, delivers the partially-signed document to <code>RECEIVER</code> participants and notifies <code>SIGNER</code> / <code>ADMIN</code> participants. Any other status value is rejected with HTTP 400. Updates against a process in <code>COMPLETED</code>, <code>CANCELLED</code> or <code>EXPIRED</code> are rejected with HTTP 409. Callers that are not an <code>ADMIN</code> participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.",
+        "description": "ADMIN-only update of a running signing process. Callable by the process creator or by <strong>any active participant that holds the <code>ADMIN</code> role</strong>. All fields on the body are optional; only the fields the caller wishes to change need to be sent. Fields set to <code>null</code> are treated as &quot;no change&quot;.<br/><br/><strong>Editable fields</strong>: <code>title</code>, <code>description</code>, <code>deadline</code> (must be strictly in the future), <code>documentHandling.allowPrint</code> / <code>documentHandling.allowSave</code>. Field-level diffing is applied and an audit trail entry (<code>PROCESS_UPDATED</code>) is written only when at least one value actually changed.<br/><br/><strong>Locked at creation</strong> (never patchable through this endpoint): <code>signatureType</code>, <code>mode</code>, <code>participants</code> (participants have their own PATCH endpoint), <code>forceOnboarding</code>, <code>billToCompanyTenantId</code>.<br/><br/><strong>Lifecycle</strong>: only <code>status = CANCELLED</code> is accepted &mdash; deactivates the process (SwissSign <code>signaturesCancelProcessing</code>), records a <code>PROCESS_CANCELLED</code> audit trail entry, schedules the process for deletion, delivers the partially-signed document to <code>RECEIVER</code> participants and notifies <code>SIGNER</code> / <code>ADMIN</code> participants. Any other status value is rejected with HTTP 400. Updates against a process in <code>COMPLETED</code>, <code>CANCELLED</code> or <code>EXPIRED</code> are rejected with HTTP 409. Callers that are not an <code>ADMIN</code> participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.",
         "operationId": "updateSigningProcess",
         "parameters": [
           {
@@ -1614,7 +1882,7 @@
           "ePost Sign"
         ],
         "summary": "Update a participant of a running signing process (ADMIN-only).",
-        "description": "ADMIN-only update of a single participant. Callable by the process creator or by <strong>any active participant that holds the <code>ADMIN</code> role</strong> (LUZ-158618). Only reachable while the participant is <code>PENDING</code> or <code>FORCED_ONBOARDING</code> &mdash; once the participant has <code>SIGNED</code>, <code>REJECTED</code>, <code>EXPIRED</code> or has already been <code>REMOVED</code>, the request is rejected with HTTP 409. All fields on the body are optional; field-level diffing is applied and an audit trail entry (<code>PARTICIPANT_UPDATED</code>) is written only when at least one value actually changed.<br/><br/><strong>Removal</strong>: send <code>status = REMOVED</code> to remove the participant from the process. Records a <code>PARTICIPANT_REMOVED</code> audit trail entry. Any other status value is rejected with HTTP 400.<br/><br/><strong>Credential-change re-matching (LUZ-158618)</strong>: changing any credential field &mdash; <code>hashedPrimaryCredential</code>, <code>hashedPrimaryValue</code>, <code>derivedHashedCredentials</code>, <code>derivedHashedValue</code>, <code>unhashedCredentials</code>, or <code>allCredentialShouldMatch</code> &mdash; re-runs tenant-directory matching for this participant slot. If the resolved recipient changes, the previously-resolved tenant is remembered (so their subsequent sign attempts are rejected with <code>REMOVED_BY_SENDER</code>) and the initial signing notification is re-delivered to the newly resolved recipient. The previous recipient's letterbox entry is intentionally <strong>NOT</strong> withdrawn. If the new credential matches multiple accounts the request is rejected with HTTP 422.<br/><br/><strong>Last-ADMIN protection</strong>: removing the last <code>ADMIN</code> &mdash; or stripping the <code>ADMIN</code> role from the last <code>ADMIN</code> by supplying a <code>roles</code> list that does not contain <code>ADMIN</code> &mdash; is rejected with HTTP 409; the participant is left unchanged. Callers that are not an <code>ADMIN</code> participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.",
+        "description": "ADMIN-only update of a single participant. Callable by the process creator or by <strong>any active participant that holds the <code>ADMIN</code> role</strong>. Only reachable while the participant is <code>PENDING</code> or <code>FORCED_ONBOARDING</code> &mdash; once the participant has <code>SIGNED</code>, <code>REJECTED</code>, <code>EXPIRED</code> or has already been <code>REMOVED</code>, the request is rejected with HTTP 409. All fields on the body are optional; field-level diffing is applied and an audit trail entry (<code>PARTICIPANT_UPDATED</code>) is written only when at least one value actually changed.<br/><br/><strong>Removal</strong>: send <code>status = REMOVED</code> to remove the participant from the process. Records a <code>PARTICIPANT_REMOVED</code> audit trail entry. Any other status value is rejected with HTTP 400.<br/><br/><strong>Credential-change re-matching</strong>: changing any credential field &mdash; <code>hashedPrimaryCredential</code>, <code>hashedPrimaryValue</code>, <code>derivedHashedCredentials</code>, <code>derivedHashedValue</code>, <code>unhashedCredentials</code>, or <code>allCredentialShouldMatch</code> &mdash; re-runs tenant-directory matching for this participant slot. If the resolved recipient changes, the previously-resolved tenant is remembered (so their subsequent sign attempts are rejected with <code>REMOVED_BY_SENDER</code>) and the initial signing notification is re-delivered to the newly resolved recipient. The previous recipient's letterbox entry is intentionally <strong>NOT</strong> withdrawn. If the new credential matches multiple accounts the request is rejected with HTTP 422.<br/><br/><strong>Last-ADMIN protection</strong>: removing the last <code>ADMIN</code> &mdash; or stripping the <code>ADMIN</code> role from the last <code>ADMIN</code> by supplying a <code>roles</code> list that does not contain <code>ADMIN</code> &mdash; is rejected with HTTP 409; the participant is left unchanged. Callers that are not an <code>ADMIN</code> participant of this process receive HTTP 404 (the existence of the process is not disclosed). Access requires the ePost Sign widget subscription.",
         "operationId": "updateSigningParticipant",
         "parameters": [
           {
@@ -1714,99 +1982,6 @@
           },
           "422": {
             "description": "Validation failed on the request body, or a credential change re-matches to multiple accounts.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Something went wrong on our side while processing the request. Please kindly contact our support.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "apiKeyAuth": []
-          },
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/epost/signing/processes/{processId}/retry-delivery": {
-      "post": {
-        "tags": [
-          "ePost Sign"
-        ],
-        "summary": "Retry delivery of a signing process.",
-        "description": "Re-arms the outstanding delivery tasks of the signing process and triggers an immediate retry of only the not-yet-completed steps (e.g. delivering the signed document to <code>RECEIVER</code> participants or sending forced-onboarding invitations). Already-completed steps are not repeated. Returns the refreshed process view with the recomputed delivery state.",
-        "operationId": "retrySigningDelivery",
-        "parameters": [
-          {
-            "name": "processId",
-            "in": "path",
-            "description": "Server-assigned unique identifier of the signing process.",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string",
-              "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Delivery retried; refreshed process state.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SigningProcess"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "ePost Sign widget not subscribed.<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4315,6 +4490,49 @@
           }
         }
       },
+      "BillingAllowlistAddRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "description": "Email of the individual ePost user to authorise. Must resolve to exactly one existing ePost user holding an INDIVIDUAL account.",
+            "pattern": "\\S",
+            "type": "string",
+            "example": "jane.doe@example.com",
+            "nullable": false
+          }
+        }
+      },
+      "BillingAllowlistEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "description": "Server-assigned unique identifier of this allowlist entry. Pass this value as <code>entry-id</code> on <code>DELETE /signing/billing-allowlist/{entry-id}</code> to remove it.",
+            "type": "string",
+            "example": "6c2df3c0-5b1a-4c92-9c46-3b8a9e0e2d51"
+          },
+          "userEmail": {
+            "description": "Email of the individual ePost user authorised to bill signing requests to this company.",
+            "type": "string",
+            "example": "jane.doe@example.com"
+          },
+          "userParticipantId": {
+            "description": "ePost participantId resolved for userEmail at the time this entry was added.",
+            "type": "string",
+            "example": "c56a24e3-55af-4d96-8cf3-8c127116efc5",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "description": "Creation timestamp (ISO 8601).",
+            "type": "string",
+            "example": "2026-10-01T10:03:34Z"
+          }
+        }
+      },
       "BillingCompany": {
         "type": "object",
         "properties": {
@@ -6040,6 +6258,20 @@
             "example": "DELIVERED",
             "nullable": true
           },
+          "recipientDeliveryStatus": {
+            "description": "Delivery progress of the final signed document to this participant once the process completes, independent of <code>deliveryStatus</code> above (which only covers the initial document).",
+            "enum": [
+              "PENDING",
+              "DELIVERED",
+              "ONBOARDING_SENT",
+              "SUBMITTER_FALLBACK",
+              "SKIPPED_NO_RECIPIENT",
+              "FAILED"
+            ],
+            "type": "object",
+            "example": "DELIVERED",
+            "nullable": true
+          },
           "hashedPrimaryValue": {
             "description": "Correlates the returned participant with the hash the caller submitted.",
             "type": "string",
@@ -7291,7 +7523,7 @@
             "example": "IN_PROGRESS"
           },
           "deliveryState": {
-            "description": "Delivery/orchestration state of the process side effects (independent of <code>status</code>). Non-terminal values are retryable via <code>POST /signing/processes/{processId}/retry-delivery</code>.",
+            "description": "Delivery/orchestration state of the process side effects (independent of <code>status</code>).",
             "enum": [
               "PENDING",
               "IN_PROGRESS",
@@ -7376,6 +7608,20 @@
                     "DELIVERED",
                     "ONBOARDING_SENT",
                     "NOT_DELIVERED",
+                    "FAILED"
+                  ],
+                  "type": "object",
+                  "example": "DELIVERED",
+                  "nullable": true
+                },
+                "recipientDeliveryStatus": {
+                  "description": "Delivery progress of the final signed document to this participant once the process completes, independent of <code>deliveryStatus</code> above (which only covers the initial document).",
+                  "enum": [
+                    "PENDING",
+                    "DELIVERED",
+                    "ONBOARDING_SENT",
+                    "SUBMITTER_FALLBACK",
+                    "SKIPPED_NO_RECIPIENT",
                     "FAILED"
                   ],
                   "type": "object",
