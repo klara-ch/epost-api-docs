@@ -5479,8 +5479,37 @@
           "documentInfoByLanguage": {
             "description": "Optional localised overwrite of the top-level documentTitle and documentDescription, keyed by uppercase language code (DE, FR, IT, EN). A recipient whose letterbox language has an entry is shown that entry's title and description instead of the top-level values; a recipient whose language has no entry is shown the top-level documentTitle and documentDescription. Relevant only for the DIGITAL channel.",
             "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/LocalizedDocumentInfo"
+            "properties": {
+              "DE": {
+                "$ref": "#/components/schemas/LocalizedDocumentInfo"
+              },
+              "FR": {
+                "$ref": "#/components/schemas/LocalizedDocumentInfo"
+              },
+              "IT": {
+                "$ref": "#/components/schemas/LocalizedDocumentInfo"
+              },
+              "EN": {
+                "$ref": "#/components/schemas/LocalizedDocumentInfo"
+              }
+            },
+            "example": {
+              "DE": {
+                "title": "Ihr Schadenfall",
+                "description": "Ihre Unterlagen zum Schadenfall"
+              },
+              "FR": {
+                "title": "Votre sinistre",
+                "description": "Vos documents concernant le sinistre"
+              },
+              "IT": {
+                "title": "Il suo sinistro",
+                "description": "I suoi documenti relativi al sinistro"
+              },
+              "EN": {
+                "title": "Your claim",
+                "description": "Your claim documents"
+              }
             }
           }
         }
@@ -5678,16 +5707,6 @@
           "digitalAdditionalInfo": {
             "$ref": "#/components/schemas/DigitalAdditionalInfo"
           },
-          "documentSignature": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DocumentSignature"
-              },
-              {
-                "description": "Singature's info if document required Singature."
-              }
-            ]
-          },
           "forcedOnboarding": {
             "allOf": [
               {
@@ -5804,16 +5823,6 @@
           "digitalAdditionalInfo": {
             "$ref": "#/components/schemas/DigitalAdditionalInfo"
           },
-          "documentSignature": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DocumentSignature"
-              },
-              {
-                "description": "Singature's info if document required Singature."
-              }
-            ]
-          },
           "physicalAdditionalInfo": {
             "allOf": [
               {
@@ -5893,67 +5902,12 @@
           }
         }
       },
-      "DocumentSignature": {
-        "description": "Singature's info if document required Singature.",
-        "type": "object",
-        "properties": {
-          "signatureType": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SignatureType"
-              },
-              {
-                "description": "Type of signature (values: SES/AES/QES).",
-                "example": "SES"
-              }
-            ]
-          },
-          "esignProvider": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ESignProvider"
-              },
-              {
-                "description": "e-sign provider (values: SWISS_SIGN/LETS_SIGN).",
-                "example": "LETS_SIGN"
-              }
-            ]
-          },
-          "workflowId": {
-            "description": "Workflow ID of the signature.",
-            "type": "string",
-            "example": "rss"
-          },
-          "type": {
-            "description": "Document type",
-            "type": "string",
-            "example": "pdf"
-          },
-          "metaData": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Metadata"
-              },
-              {
-                "description": "Metadata of the signature."
-              }
-            ]
-          }
-        }
-      },
       "DocumentType": {
         "enum": [
           "message",
           "invoice",
           "contract",
           "hr"
-        ],
-        "type": "string"
-      },
-      "ESignProvider": {
-        "enum": [
-          "SWISS_SIGN",
-          "LETS_SIGN"
         ],
         "type": "string"
       },
@@ -6177,7 +6131,7 @@
             "type": "string"
           },
           "batchId": {
-            "description": "Optional correlation key grouping several deliveries onto one iLetter record: sending the same batchId again appends the new recipients to the existing iLetter instead of creating a new one. If omitted, this delivery always creates its own new iLetter, and a resend of a failed delivery updates that same iLetter rather than creating a second one.",
+            "description": "Optional iLetter batch id. Deliveries with the same batchId share one iLetter record: sending the same batchId again appends the new recipients to the existing iLetter instead of creating a new one. If omitted, this delivery always creates its own new iLetter, and a resend of a failed delivery updates that same iLetter rather than creating a second one.",
             "maxLength": 128,
             "type": "string"
           },
@@ -6623,17 +6577,6 @@
           "FINISHED"
         ],
         "type": "string"
-      },
-      "Metadata": {
-        "description": "Signature's metadata.",
-        "type": "object",
-        "properties": {
-          "remoteSigningService": {
-            "description": "Remote signing service",
-            "type": "string",
-            "example": "ses-pdf"
-          }
-        }
       },
       "Onboarding": {
         "description": "This model to hold data for onboarding steps",
@@ -7923,15 +7866,6 @@
             "example": 48
           }
         }
-      },
-      "SignatureType": {
-        "description": "Document Signature Type",
-        "enum": [
-          "SES",
-          "AES",
-          "QES"
-        ],
-        "type": "string"
       },
       "SigningProcess": {
         "type": "object",
