@@ -48,14 +48,26 @@ You get the code in a reply. With it, sign in at `test.klara-epost.tech` using y
 | Channel | On the test environment |
 |---|---|
 | ePost digital letterbox | **Self-service.** Works as soon as you are onboarded |
-| eBill | Possible, but not self-service. Ask [enterprise support](mailto:support.enterprise@epostservice.ch) |
+| eBill | Not possible. Ask [enterprise support](mailto:support.enterprise@epostservice.ch) for options |
 | SMS | Possible, but not self-service. Ask [enterprise support](mailto:support.enterprise@epostservice.ch) |
 | Email | Possible, but only with a special test domain. Ask [enterprise support](mailto:support.enterprise@epostservice.ch) |
-| Physical letter | Possible, but only with close support from ePost. Ask [enterprise support](mailto:support.enterprise@epostservice.ch) |
+| Physical letter | **Self-service.** Nothing is printed or posted on the test environment. Run print tests on production, with letters to addresses of your own |
 
 ### Production environment
 
-Not self-service. Onboarding happens together with an ePost administrator. Contact [enterprise support](mailto:support.enterprise@epostservice.ch) to start it.
+Self-service, in four steps:
+
+1. Register a company account at `app.epost.ch`.
+
+2. Enter and verify your company's postal address. The verification code comes by letter.
+
+3. Subscribe to the **ePost SmartSend** widget. It gives you the interface for monitoring your sendings.
+
+4. Optional: subscribe to the **Digital Letterbox** widget to receive digital letters for your company.
+
+After that you can use sending, the preview services, monitoring, standard identity matching and the digital letterbox.
+
+Questions about onboarding go to [enterprise support](mailto:support.enterprise@epostservice.ch). For self-service customers, individual support is charged at CHF 200 per hour under the General Terms and Conditions.
 
 ### Accessing the letterbox with a private account
 

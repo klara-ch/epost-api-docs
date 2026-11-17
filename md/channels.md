@@ -55,7 +55,7 @@ Printed and posted through a print partner. Three rules decide whether this work
 
 > **Warning: The address in the PDF must equal the address in the metadata**
 >
-> A deviation leads to delivery problems or to wrong franking. The print partner reads the PDF, the platform bills the metadata.
+> ePost and the print partner use the metadata for franking, sorting and address validation, while the PDF is what gets printed. A deviation leads to delivery problems or to wrong franking. Identity matching uses the metadata as well: if the recipient there differs from the one in the PDF, ePost may deliver the document digitally to someone other than the person the letter is addressed to.
 
 **A4 portrait only.** Every page of the document. A page in another format or in landscape orientation cannot be processed for physical delivery.
 

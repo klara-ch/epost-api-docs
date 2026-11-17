@@ -206,6 +206,18 @@ POST `/epost/preview/delivery-channels` — response body now documented for 401
 
 ### Preview builds
 
+#### Preview, ninth build · Production onboarding, test channels, iLetter files
+
+Corrections and additions from a comparison with the ePost developer portal:
+
+- **Correction: onboarding on production is self-service.** Register a company account at `app.epost.ch`, verify the postal address and subscribe to ePost SmartSend. This page said onboarding happens together with an ePost administrator.
+
+- **Correction: what you can test.** eBill cannot be tested on the test environment. Physical letters can be sent there self-service, but nothing is printed; print tests run on production.
+
+- **Downloading files from iLetter answers.** What the output call carries for uploaded files, who may fetch them, and that they are available for 90 days.
+
+- **Physical letter:** the recipient in the PDF and in the metadata must be the same, also because identity matching uses the metadata.
+
 #### Preview, eighth build · Delivery response and status corrected, async limits
 
 Corrections from a large production run against this API:

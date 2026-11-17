@@ -126,7 +126,7 @@ The `metadata` part of the multipart request. The Template declares the URL para
 
 - `GET /epost/deliveries/monitoring` returns, per recipient, the iLetter values as you sent them and, in `effectiveILetterParameters` and `effectiveILetterPlaceholders`, the values actually used for that recipient.
 
-- Files a recipient uploads as an answer are fetched with `GET /epost/v2/iletters/{iletter-id}/response-files/{response-file-id}/content`.
+- Files a recipient uploads as an answer are fetched with `GET /epost/v2/iletters/{iletter-id}/response-files/{response-file-id}/content`, see [Downloading an uploaded file](https://developer.klara.ch/epost-preview/#iletter-files).
 
 ### The two calls the platform makes to you
 
@@ -204,6 +204,8 @@ With `structured-v2` the platform builds the body:
 
 - `questions`: the question text per answered field, if enabled on the endpoint.
 
+- `files`: only when the recipient uploaded files. One entry per file with `answerKey` (the output name of the file question), `responseFileId`, `fileName`, `mimeType`, `size` in bytes and `expiresAt`. In `answers`, the file question carries the file name, or the list of names.
+
 Return data that comes from your data source is what the recipient's session reported. The platform does not verify it, so validate it again in your system.
 
 ```
@@ -221,7 +223,8 @@ X-Signature: <HMAC over the body>
 {
   "recipient": { "customerNumber": "K-88422" },
   "answers": {
-    "confirmClaim": { "value": "yes", "label": "Yes, the details are correct" }
+    "confirmClaim": { "value": "yes", "label": "Yes, the details are correct" },
+    "damagePhoto": { "value": "damage.jpg", "label": "damage.jpg" }
   },
   "meta": {
     "letterId": "9f1e2d3c-4b5a-4678-9abc-def012345678",
@@ -233,6 +236,33 @@ X-Signature: <HMAC over the body>
     "senderUserId": "K-88422",
     "participantId": "1a234567-1234-12a3-a1bc-12a3b4c5d678"
   },
-  "questions": { "confirmClaim": "Are the claim details correct?" }
+  "questions": {
+    "confirmClaim": "Are the claim details correct?",
+    "damagePhoto": "Photo of the damage"
+  },
+  "files": [
+    {
+      "answerKey": "damagePhoto",
+      "responseFileId": "66f1a2b3c4d5e6f708192a3b",
+      "fileName": "damage.jpg",
+      "mimeType": "image/jpeg",
+      "size": 183422,
+      "expiresAt": "2027-01-06T09:12:33.000Z"
+    }
+  ]
 }
 ```
+
+#### Downloading an uploaded file
+
+The output call carries the file's metadata, not its bytes. Fetch them with `GET /epost/v2/iletters/{iletter-id}/response-files/{response-file-id}/content`, using the same credentials as the delivery: `iletter-id` is `meta.letterId`, `response-file-id` is the `responseFileId` of the entry in `files`.
+
+- Only the sender tenant of the iLetter can read its files, with any role that may send a delivery. Anyone else gets `403`.
+
+- A `200` returns the bytes with the original `Content-Type` and a `Content-Disposition` that carries the file name. The response is marked `no-store`, so keep your own copy.
+
+- The file is available until `expiresAt`, 90 days after `submittedAt`. After that the call returns `410` with the file's metadata, and the file is deleted. The same `410` follows when the recipient submitted the answer again or the iLetter was deleted.
+
+> **Warning: Download within 90 days**
+>
+> The platform keeps no copy of an uploaded file after that.
