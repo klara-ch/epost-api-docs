@@ -8,6 +8,24 @@ What changed and when. Changes that can break an existing integration are marked
 
 ### API changes
 
+#### 17 November 2026 · 7 changed
+
+#### Changed
+
+- **7 endpoints** — new status codes: 403Show the endpointsDELETE `/epost/v2/letters/{letter-id}`
+
+- GET `/epost/v2/archives/directories`
+
+- GET `/epost/v2/archives/letters`
+
+- PATCH `/epost/v2/letters/{letter-id}/archive`
+
+- POST `/epost/v2/letters/{letter-id}/accept`
+
+- POST `/epost/v2/letters/{letter-id}/reject`
+
+- POST `/epost/v2/letters/{letter-id}/restore`
+
 #### 20 October 2026 · 6 new · 1 removed · breaking
 
 > **Warning: Breaking changes**

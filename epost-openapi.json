@@ -2056,6 +2056,16 @@
               }
             }
           },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
@@ -2145,6 +2155,16 @@
           },
           "401": {
             "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2947,6 +2967,16 @@
               }
             }
           },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
@@ -3003,6 +3033,16 @@
           },
           "401": {
             "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3078,6 +3118,16 @@
           },
           "401": {
             "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3242,6 +3292,16 @@
               }
             }
           },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Resource not found<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
@@ -3309,6 +3369,16 @@
           },
           "401": {
             "description": "No Authorization header found or invalid token<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8841,11 +8911,13 @@
     "securitySchemes": {
       "apiKeyAuth": {
         "type": "apiKey",
+        "description": "API key created in the KLARA user management. A request sent with an API key runs with exactly the roles selected for that key, independent of any user. Only roles offered in the API key form can be selected; roles the system assigns to users, such as <code>employee</code>, cannot be put on a key. When a request carries both <code>X-API-KEY</code> and <code>Authorization</code>, the API key is used.",
         "name": "X-API-KEY",
         "in": "header"
       },
       "bearerAuth": {
         "type": "http",
+        "description": "Access token issued by <code>POST /core/latest/token</code> for a user, with username and password or a refresh token. A request sent with this token runs with every role the user holds in the selected company, including roles that cannot be put on an API key: <code>employee</code>, which the system assigns to every employee user, and <code>print_and_send_basic</code>, which users may still hold although it is no longer assignable. A user can therefore reach operations that no API key reaches. Each operation states the permission or roles it requires; the check is the same for both schemes.",
         "scheme": "bearer",
         "bearerFormat": "JWT"
       }
