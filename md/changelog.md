@@ -210,7 +210,7 @@ POST `/epost/preview/delivery-channels` — response body now documented for 401
 
 Corrections and additions from a comparison with the ePost developer portal:
 
-- **Correction: onboarding on production is self-service.** Register a company account at `app.epost.ch`, verify the postal address and subscribe to ePost SmartSend. This page said onboarding happens together with an ePost administrator.
+- **Correction: onboarding on production is self-service.** Register a company account at `app.epost.ch`, verify the postal address and subscribe to ePost SmartSend, which on production unlocks what eLetter: Versand unlocks on the test environment. This page said onboarding happens together with an ePost administrator.
 
 - **Correction: what you can test.** eBill cannot be tested on the test environment. Physical letters can be sent there self-service, but nothing is printed; print tests run on production.
 

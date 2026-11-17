@@ -16,7 +16,7 @@ Self-service, no approval needed. The API lives on `https://api-test.klara-epost
 
 > **Warning: Which endpoints you may call depends on what you activated**
 >
-> This is the most common reason for an unexpected `403`. The **eLetter: Versand** subscription unlocks Sending, Preview Services, Monitoring and Standard Identity Matching. The **Digital Letterbox** has to be activated separately and unlocks the letterbox endpoints. Detailed identity matching is restricted and chargeable on top.
+> This is the most common reason for an unexpected `403`. The **eLetter: Versand** subscription on the test environment, **ePost SmartSend** on production, unlocks Sending, Preview Services, Monitoring and Standard Identity Matching. The **Digital Letterbox** has to be activated separately and unlocks the letterbox endpoints.
 
 #### Receiving as well as sending
 
@@ -61,11 +61,9 @@ Self-service, in four steps:
 
 2. Enter and verify your company's postal address. The verification code comes by letter.
 
-3. Subscribe to the **ePost SmartSend** widget. It gives you the interface for monitoring your sendings.
+3. Subscribe to the **ePost SmartSend** widget. It unlocks sending, the preview services, monitoring and standard identity matching, and gives you the interface for monitoring your sendings.
 
-4. Optional: subscribe to the **Digital Letterbox** widget to receive digital letters for your company.
-
-After that you can use sending, the preview services, monitoring, standard identity matching and the digital letterbox.
+4. Optional: subscribe to the **Digital Letterbox** widget to receive digital letters for your company. It unlocks the letterbox endpoints.
 
 Questions about onboarding go to [enterprise support](mailto:support.enterprise@epostservice.ch). For self-service customers, individual support is charged at CHF 200 per hour under the General Terms and Conditions.
 
