@@ -4645,6 +4645,16 @@
               }
             }
           },
+          "403": {
+            "description": "The current user is not allowed to access this company data<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
           "429": {
             "description": "API rate limit exceeded<br/><br/>Failures detected by a downstream service carry that service's own <code>code</code>, which this reference does not enumerate, so the <code>code</code> field may hold a value not documented here. Treat an unrecognised code as a generic failure of the status it arrives with, and do not branch on a code this reference does not list.",
             "content": {

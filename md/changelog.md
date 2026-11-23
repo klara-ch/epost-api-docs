@@ -8,6 +8,12 @@ What changed and when. Changes that can break an existing integration are marked
 
 ### API changes
 
+#### 23 November 2026 · 1 changed
+
+#### Changed
+
+- POST `/epost/v2/standard-matchings` — new status codes: 403
+
 #### 17 November 2026 · 7 changed
 
 #### Changed
